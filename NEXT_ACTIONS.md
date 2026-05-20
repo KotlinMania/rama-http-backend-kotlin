@@ -5,11 +5,11 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 1/20 (5.0%)
-- **Function parity:** 0/94 matched (target 1) — 0.0%
+- **Function parity:** 2/94 matched (target 3) — 2.1%
 - **Class/type parity:** 1/40 matched (target 5) — 2.5%
-- **Combined symbol parity:** 1/134 matched (target 6) — 0.7%
-- **Average inline-code cosine:** 0.00 (function body across 1 matched files)
-- **Average documentation cosine:** 1.00 (doc text across 1 matched files)
+- **Combined symbol parity:** 3/134 matched (target 8) — 2.2%
+- **Average inline-code cosine:** 0.32 (function body across 1 matched files)
+- **Average documentation cosine:** 0.95 (doc text across 1 matched files)
 - **Cheat-zeroed Files:** 0
 - **Critical Issues:** 1 files with <0.60 function similarity
 
@@ -30,11 +30,11 @@ Every matched file is listed below with function and type symbol parity.
 ### 1. proxy_connector.proxy_error
 
 - **Target:** `proxyconnector.ProxyError`
-- **Similarity:** 0.00
+- **Similarity:** 0.32
 - **Dependents:** 0
-- **Priority Score:** 30410.0
-- **Functions:** 0/3 matched (target 1)
-- **Missing functions:** `fmt`, `from`, `source`
+- **Priority Score:** 10406.8
+- **Functions:** 2/3 matched
+- **Missing functions:** `fmt`
 - **Types:** 1/1 matched (target 5)
 - **Missing types:** _none_
 

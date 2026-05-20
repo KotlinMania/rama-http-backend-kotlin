@@ -28,6 +28,7 @@ class HttpProxyErrorTest {
         assertEquals("http proxy error: transport error: I/O [tcp reset]", error.message)
         assertEquals("http proxy error: transport error: I/O [tcp reset]", error.toString())
         assertSame(transportError, error.cause)
+        assertSame(transportError, error.source())
     }
 
     @Test
@@ -36,6 +37,16 @@ class HttpProxyErrorTest {
         val outer = WrappedThrowable("outer", inner)
 
         assertSame(inner, HttpProxyError.Transport(outer).cause)
+        assertSame(inner, HttpProxyError.Transport(outer).source())
+    }
+
+    @Test
+    fun fromWrapsThrowableAsTransportError() {
+        val transportError = DescribedThrowable("connection refused")
+        val error = HttpProxyError.from(transportError)
+
+        assertEquals("http proxy error: transport error: I/O [connection refused]", error.message)
+        assertSame(transportError, error.source())
     }
 
     @Test

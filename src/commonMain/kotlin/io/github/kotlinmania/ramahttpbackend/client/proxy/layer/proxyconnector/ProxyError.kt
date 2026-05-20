@@ -45,12 +45,24 @@ public sealed class HttpProxyError : Throwable() {
     override fun toString(): String = message
 
     override val cause: Throwable?
-        get() = when (this) {
-            is Transport -> {
-                // filter out generic io errors,
-                // but do allow custom errors (e.g. because IP is blocked)
-                error.cause ?: error
-            }
-            else -> null
+        get() = source()
+
+    /**
+     * The underlying error that caused this proxy failure, when one is available.
+     */
+    public fun source(): Throwable? = when (this) {
+        is Transport -> {
+            // filter out generic io errors,
+            // but do allow custom errors (e.g. because IP is blocked)
+            error.cause ?: error
         }
+        else -> null
+    }
+
+    public companion object {
+        /**
+         * Create a proxy transport error from an I/O failure.
+         */
+        public fun from(value: Throwable): HttpProxyError = Transport(value)
+    }
 }
