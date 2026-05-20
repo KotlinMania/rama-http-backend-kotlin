@@ -1,4 +1,4 @@
-// port-lint: source src/client/proxy/layer/proxy_connector/proxy_error.rs
+// port-lint: source client/proxy/layer/proxy_connector/proxy_error.rs
 package io.github.kotlinmania.ramahttpbackend.client.proxy.layer.proxyconnector
 
 /**
@@ -41,6 +41,8 @@ public sealed class HttpProxyError : Throwable() {
             is Transport -> "http proxy error: transport error: I/O [$error]"
             is Other -> "http proxy error: first line of header = [$header]"
         }
+
+    override fun toString(): String = message
 
     override val cause: Throwable?
         get() = when (this) {
