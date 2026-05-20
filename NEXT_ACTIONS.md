@@ -4,14 +4,14 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 1/20 (5.0%)
+- **Files Present:** 2/20 (10.0%)
 - **Function parity:** 2/94 matched (target 3) — 2.1%
 - **Class/type parity:** 1/40 matched (target 5) — 2.5%
 - **Combined symbol parity:** 3/134 matched (target 8) — 2.2%
 - **Average inline-code cosine:** 0.32 (function body across 1 matched files)
 - **Average documentation cosine:** 0.95 (doc text across 1 matched files)
-- **Cheat-zeroed Files:** 0
-- **Critical Issues:** 1 files with <0.60 function similarity
+- **Cheat-zeroed Files:** 1
+- **Critical Issues:** 2 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -36,6 +36,17 @@ Every matched file is listed below with function and type symbol parity.
 - **Functions:** 2/3 matched
 - **Missing functions:** `fmt`
 - **Types:** 1/1 matched (target 5)
+- **Missing types:** _none_
+
+### 2. proxy_connector.mod
+
+- **Target:** `proxyconnector.Mod [STUB]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 10.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
 - **Missing types:** _none_
 
 ## Success Criteria
@@ -70,7 +81,6 @@ do not treat them as the next implementation target by default.
 |--------|-----------------|------|-------------|---------------|
 | `client.mod` | `client.Mod` | 0 | `client/mod.rs` | `client/Mod.kt` |
 | `client.proxy.layer.mod` | `client.proxy.layer.Mod` | 0 | `client/proxy/layer/mod.rs` | `client/proxy/layer/Mod.kt` |
-| `proxy_connector.mod` | `client.proxy.layer.proxyconnector.Mod` | 0 | `client/proxy/layer/proxy_connector/mod.rs` | `client/proxy/layer/proxyconnector/Mod.kt` |
 | `proxy.mod` | `client.proxy.Mod` | 0 | `client/proxy/mod.rs` | `client/proxy/Mod.kt` |
 | `lib` | `Lib` | 0 | `lib.rs` | `Lib.kt` |
 | `layer.mod` | `server.layer.Mod` | 0 | `server/layer/mod.rs` | `server/layer/Mod.kt` |
