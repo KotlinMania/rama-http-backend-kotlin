@@ -35,14 +35,16 @@ public sealed class HttpProxyError : Throwable() {
     public class Other(public val header: String) : HttpProxyError()
 
     override val message: String
-        get() = when (this) {
-            is AuthRequired -> "http proxy error: proxy auth required (http 407)"
-            is Unavailable -> "http proxy error: proxy unavailable (http 503)"
-            is Transport -> "http proxy error: transport error: I/O [$error]"
-            is Other -> "http proxy error: first line of header = [$header]"
-        }
+        get() = fmt()
 
-    override fun toString(): String = message
+    internal fun fmt(): String = when (this) {
+        is AuthRequired -> "http proxy error: proxy auth required (http 407)"
+        is Unavailable -> "http proxy error: proxy unavailable (http 503)"
+        is Transport -> "http proxy error: transport error: I/O [$error]"
+        is Other -> "http proxy error: first line of header = [$header]"
+    }
+
+    override fun toString(): String = fmt()
 
     override val cause: Throwable?
         get() = source()

@@ -9,7 +9,7 @@ name: "CodeQL Advanced"
 #
 # Three matrix entries cover the languages CodeQL detects in this repo:
 #   - actions             (source-only)
-#   - java-kotlin         (manual build via compileAndroidMain — see note)
+#   - java-kotlin         (manual traced extraction via setupAndroidSdk + compileAndroidMain — see note)
 #   - javascript-typescript (source-only)
 #
 # For java-kotlin, the matrix-shared `Initialize CodeQL -> Perform CodeQL
@@ -17,12 +17,12 @@ name: "CodeQL Advanced"
 # for that language:
 #
 #   1. JDK + Gradle setup (the other two languages need no toolchain).
-#   2. A `./gradlew compileAndroidMain compileKotlinJs compileKotlinWasmJs`
-#      invocation under the CodeQL build tracer.
+#   2. A narrow `./gradlew setupAndroidSdk compileAndroidMain compileKotlinJs
+#      compileKotlinWasmJs` invocation under the CodeQL build tracer.
 #
-# This is a strict-KMP project with no JVM target, so the autobuild
-# default for java-kotlin (`./gradlew testClasses`) has no task to run
-# and `build-mode: none` extracts nothing. The
+# This is a strict-KMP project, so the autobuild default for java-kotlin
+# (`./gradlew testClasses`) is not the extraction path we rely on and
+# `build-mode: none` extracts nothing. The
 # `com.android.kotlin.multiplatform.library` plugin, however, runs the
 # JVM `kotlinc` for the android target and emits real `.class` files
 # under `build/classes/kotlin/android/main` -- exactly what the
@@ -35,7 +35,8 @@ name: "CodeQL Advanced"
 # plus `--no-configuration-cache --no-daemon` force a fresh traceable
 # `kotlinc` exec per compilation. That is why this file uses
 # `build-mode: manual` for java-kotlin even though autobuild is the
-# template default.
+# template default. This is not the repo's full build contract; it is
+# only the traced CodeQL extraction command.
 
 on:
   schedule:
@@ -107,6 +108,7 @@ jobs:
         if: matrix.build-mode == 'manual'
         run: |
           ./gradlew \
+            setupAndroidSdk \
             compileAndroidMain \
             compileKotlinJs \
             compileKotlinWasmJs \

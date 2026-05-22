@@ -25,6 +25,7 @@ class HttpProxyErrorTest {
         val transportError = DescribedThrowable("tcp reset")
         val error = HttpProxyError.Transport(transportError)
 
+        assertEquals("http proxy error: transport error: I/O [tcp reset]", error.fmt())
         assertEquals("http proxy error: transport error: I/O [tcp reset]", error.message)
         assertEquals("http proxy error: transport error: I/O [tcp reset]", error.toString())
         assertSame(transportError, error.cause)
