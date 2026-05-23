@@ -216,7 +216,11 @@ kotlin {
         }
     }
     iosX64 {
-        binaries.framework { baseName = "RamaHttpBackend"; xcf.add(this) }
+        binaries.framework {
+            baseName = "RamaHttpBackend"
+            isStatic = true
+            xcf.add(this)
+        }
     }
 
     tvosArm64 {
