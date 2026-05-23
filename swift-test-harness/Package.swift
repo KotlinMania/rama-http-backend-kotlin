@@ -30,6 +30,17 @@ let package = Package(
                     "-L", "../build/swift-test",
                     "-lRamaHttpBackend",
                 ]),
+                // The Kotlin/Native runtime baked into
+                // `libRamaHttpBackend.a` references CoreFoundation
+                // (`_CFAttributedString*`) and Darwin XPC
+                // (`_xpc_session_*`) symbols. Xcode auto-links these via
+                // the SDK's implicit framework list; a standalone
+                // `swift test` does not, so the link fails with
+                // `Undefined symbols for architecture arm64`. Link the
+                // frameworks explicitly so `swift test` resolves the same
+                // platform surface Xcode picks up automatically.
+                .linkedFramework("CoreFoundation"),
+                .linkedFramework("Foundation"),
             ]
         ),
     ]
