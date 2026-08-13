@@ -25,38 +25,44 @@ public sealed class HttpProxyError {
      *
      * (e.g. some kind of TCP error)
      */
-    public class Transport(public val error: HttpProxyCause) : HttpProxyError()
+    public class Transport(
+        public val error: HttpProxyCause,
+    ) : HttpProxyError()
 
     /**
      * Something went wrong, but classification did not happen.
      *
      * (First header line of http response is included in error)
      */
-    public class Other(public val header: String) : HttpProxyError()
+    public class Other(
+        public val header: String,
+    ) : HttpProxyError()
 
     public val message: String
         get() = fmt()
 
-    internal fun fmt(): String = when (this) {
-        is AuthRequired -> "http proxy error: proxy auth required (http 407)"
-        is Unavailable -> "http proxy error: proxy unavailable (http 503)"
-        is Transport -> "http proxy error: transport error: I/O [$error]"
-        is Other -> "http proxy error: first line of header = [$header]"
-    }
+    internal fun fmt(): String =
+        when (this) {
+            is AuthRequired -> "http proxy error: proxy auth required (http 407)"
+            is Unavailable -> "http proxy error: proxy unavailable (http 503)"
+            is Transport -> "http proxy error: transport error: I/O [$error]"
+            is Other -> "http proxy error: first line of header = [$header]"
+        }
 
     override fun toString(): String = fmt()
 
     /**
      * The underlying error that caused this proxy failure, when one is available.
      */
-    public fun source(): HttpProxyCause? = when (this) {
-        is Transport -> {
-            // filter out generic io errors,
-            // but do allow custom errors (e.g. because IP is blocked)
-            error.source ?: error
+    public fun source(): HttpProxyCause? =
+        when (this) {
+            is Transport -> {
+                // filter out generic io errors,
+                // but do allow custom errors (e.g. because IP is blocked)
+                error.source ?: error
+            }
+            else -> null
         }
-        else -> null
-    }
 
     public companion object {
         /**
@@ -101,7 +107,8 @@ public class HttpProxyCause(
  * Kotlin callers that need to wrap a real `Throwable` go through this
  * helper from the same module.
  */
-internal fun HttpProxyCause.Companion.fromThrowable(value: Throwable): HttpProxyCause = HttpProxyCause(
-    text = value.message ?: value.toString(),
-    source = value.cause?.let { fromThrowable(it) },
-)
+internal fun HttpProxyCause.Companion.fromThrowable(value: Throwable): HttpProxyCause =
+    HttpProxyCause(
+        text = value.message ?: value.toString(),
+        source = value.cause?.let { fromThrowable(it) },
+    )

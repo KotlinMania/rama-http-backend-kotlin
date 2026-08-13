@@ -75,7 +75,9 @@ class HttpProxyErrorTest {
         assertNull(cause.source?.source)
     }
 
-    private class DescribedThrowable(private val description: String) : Throwable(description) {
+    private class DescribedThrowable(
+        private val description: String,
+    ) : Throwable(description) {
         override fun toString(): String = description
     }
 
