@@ -57,6 +57,16 @@ public sealed class HttpProxyError {
         /**
          * Create a proxy transport error from an I/O failure description.
          */
+        public fun from(value: HttpProxyCause): HttpProxyError = Transport(value)
+
+        /**
+         * Create a proxy transport error from a Throwable.
+         */
+        public fun from(value: Throwable): HttpProxyError = Transport(HttpProxyCause.fromThrowable(value))
+
+        /**
+         * Create a proxy transport error from an I/O failure description.
+         */
         public fun fromTransport(value: HttpProxyCause): HttpProxyError = Transport(value)
     }
 }
