@@ -2,6 +2,8 @@
 package io.github.kotlinmania.ramahttpbackend.client.proxy.layer.proxyconnector
 
 /**
- * Marker type for the proxyconnector module boundary.
+ * Client HTTP Proxy Connector.
+ *
+ * As defined in RFC 2068.
  */
-internal object ProxyConnectorModule
+public typealias HttpProxyConnectResponseHeadersAlias = HttpProxyConnectResponseHeaders
