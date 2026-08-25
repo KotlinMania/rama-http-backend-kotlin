@@ -5,12 +5,12 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 2/20 (10.0%)
-- **Function parity:** 2/94 matched (target 3) — 2.1%
-- **Class/type parity:** 1/40 matched (target 5) — 2.5%
-- **Combined symbol parity:** 3/134 matched (target 8) — 2.2%
-- **Average inline-code cosine:** 0.32 (function body across 1 matched files)
-- **Average documentation cosine:** 0.95 (doc text across 1 matched files)
-- **Cheat-zeroed Files:** 1
+- **Function parity:** 2/94 matched (target 8) — 2.1%
+- **Class/type parity:** 1/40 matched (target 7) — 2.5%
+- **Combined symbol parity:** 3/134 matched (target 15) — 2.2%
+- **Average inline-code cosine:** 0.00 (function body across 1 matched files)
+- **Average documentation cosine:** 0.68 (doc text across 1 matched files)
+- **Cheat-zeroed Files:** 2
 - **Critical Issues:** 2 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
@@ -29,13 +29,13 @@ Every matched file is listed below with function and type symbol parity.
 
 ### 1. proxy_connector.proxy_error
 
-- **Target:** `proxyconnector.ProxyError`
-- **Similarity:** 0.32
+- **Target:** `proxyconnector.ProxyError [ZERO]`
+- **Similarity:** 0.00
 - **Dependents:** 0
-- **Priority Score:** 10406.8
-- **Functions:** 2/3 matched
-- **Missing functions:** `fmt`
-- **Types:** 1/1 matched (target 5)
+- **Priority Score:** 10410.0
+- **Functions:** 2/3 matched (target 8)
+- **Missing functions:** `from`
+- **Types:** 1/1 matched (target 6)
 - **Missing types:** _none_
 
 ### 2. proxy_connector.mod
@@ -46,7 +46,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Priority Score:** 10.0
 - **Functions:** 0/0 matched
 - **Missing functions:** _none_
-- **Types:** 0/0 matched
+- **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 
 ## Success Criteria
@@ -58,16 +58,6 @@ For each file to be considered "complete":
 - Documentation ported
 - port-lint header present
 
-## Next Commands
-
-```bash
-# Initialize task queue for systematic porting
-cd tools/ast_distance
-./ast_distance --init-tasks ../../tmp/rama-http-backend/src rust ../../src/commonMain/kotlin/io/github/kotlinmania/ramahttpbackend kotlin tasks.json ../../AGENTS.md
-
-# Get next high-priority task
-./ast_distance --assign tasks.json <agent-id>
-```
 ## Reexport / Wiring Modules
 
 These files match `reexport_modules` patterns in `.ast_distance_config.json`. They are filtered out of
