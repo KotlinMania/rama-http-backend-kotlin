@@ -1,4 +1,4 @@
-// port-lint: source rama-http-backend/src/client/conn.rs
+// port-lint: source client/conn.rs
 package io.github.kotlinmania.ramahttpbackend.client
 
 import io.github.kotlinmania.ramahttpbackend.Body
