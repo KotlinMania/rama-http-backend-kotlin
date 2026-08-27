@@ -1,4 +1,4 @@
-// port-lint: source client/proxy/mod.rs
+// port-lint: source rama-http-backend/src/client/proxy/mod.rs
 package io.github.kotlinmania.ramahttpbackend.client.proxy
 
 /**

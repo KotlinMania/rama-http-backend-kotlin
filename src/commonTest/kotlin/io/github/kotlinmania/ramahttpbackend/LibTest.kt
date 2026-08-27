@@ -1,4 +1,4 @@
-// port-lint: tests lib.rs
+// port-lint: tests rama-http-backend/src/lib.rs
 package io.github.kotlinmania.ramahttpbackend
 
 import io.github.kotlinmania.ramahttpbackend.client.HttpClientService
