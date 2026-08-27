@@ -1,4 +1,4 @@
-// port-lint: source server/layer/upgrade/service.rs
+// port-lint: source rama-http-backend/src/server/layer/upgrade/service.rs
 package io.github.kotlinmania.ramahttpbackend.server.layer.upgrade
 
 import io.github.kotlinmania.ramahttpbackend.BoxService
