@@ -8,9 +8,9 @@ Based on AST analysis, here are the concrete next steps.
 - **Function parity:** 63/83 matched (target 140) — 75.9%
 - **Class/type parity:** 19/41 matched (target 44) — 46.3%
 - **Combined symbol parity:** 82/124 matched (target 184) — 66.1%
-- **Average inline-code cosine:** 0.47 (function body across 12 matched files)
-- **Average documentation cosine:** 0.69 (doc text across 12 matched files)
-- **Cheat-zeroed Files:** 8
+- **Average inline-code cosine:** 0.45 (function body across 13 matched files)
+- **Average documentation cosine:** 0.67 (doc text across 13 matched files)
+- **Cheat-zeroed Files:** 7
 - **Critical Issues:** 18 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
@@ -116,12 +116,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/5 matched (target 2)
 - **Missing types:** `Service`, `Output`, `Error`
 
-### 9. rama-http-backend.lib
+### 9. lib
 
-- **Target:** `ramahttpbackend.Lib [STUB]`
-- **Similarity:** 0.00
+- **Target:** `ramahttpbackend.Lib`
+- **Similarity:** 0.21
 - **Dependents:** 0
-- **Priority Score:** 20410.0
+- **Priority Score:** 20407.9
 - **Functions:** 2/4 matched (target 3)
 - **Missing functions:** `server_svc_fn`, `create_test_request`
 - **Types:** 0/0 matched (target 2)
@@ -216,7 +216,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 
-### 18. rama-http-backend.client.proxy.layer.mod
+### 18. client.proxy.layer.mod
 
 - **Target:** `commonMain.kotlin.io.github.kotlinmania.ramahttpbackend.client.proxy.layer.Mod [STUB]`
 - **Similarity:** 0.00
