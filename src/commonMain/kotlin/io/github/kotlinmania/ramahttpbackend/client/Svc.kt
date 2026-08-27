@@ -19,8 +19,13 @@ import io.github.kotlinmania.ramahttpbackend.Version
  * Internal HTTP sender representation.
  */
 public sealed class SendRequest<Body> {
-    public class Http1<Body>(public val dummy: Any? = null) : SendRequest<Body>()
-    public class Http2<Body>(public val dummy: Any? = null) : SendRequest<Body>()
+    public class Http1<Body>(
+        public val dummy: Any? = null,
+    ) : SendRequest<Body>()
+
+    public class Http2<Body>(
+        public val dummy: Any? = null,
+    ) : SendRequest<Body>()
 }
 
 /**
@@ -30,7 +35,6 @@ public class HttpClientService<B>(
     public val sender: SendRequest<B>,
     public val extensions: Extensions = Extensions(),
 ) : Service<Request, Response, Throwable> {
-
     public fun extensionsMut(): Extensions = extensions
 
     override suspend fun serve(input: Request): RamaResult<Response, Throwable> {
@@ -48,20 +52,22 @@ public class HttpClientService<B>(
         }
 
         val sanitizedRes = sanitizeClientReqHeader(input)
-        val sanitized = when (sanitizedRes) {
-            is RamaResult.Ok -> sanitizedRes.value
-            is RamaResult.Err -> return RamaResult.err(IllegalStateException(sanitizedRes.error))
-        }
+        val sanitized =
+            when (sanitizedRes) {
+                is RamaResult.Ok -> sanitizedRes.value
+                is RamaResult.Err -> return RamaResult.err(IllegalStateException(sanitizedRes.error))
+            }
 
         val respHeaders = HeaderMap()
         respHeaders.insert("content-type", "application/octet-stream")
-        val response = Response(
-            status = StatusCode.OK,
-            version = sanitized.version,
-            headers = respHeaders,
-            extensions = extensions.copy(),
-            body = Body.empty(),
-        )
+        val response =
+            Response(
+                status = StatusCode.OK,
+                version = sanitized.version,
+                headers = respHeaders,
+                extensions = extensions.copy(),
+                body = Body.empty(),
+            )
 
         return RamaResult.ok(response)
     }
@@ -86,8 +92,9 @@ public fun sanitizeClientReqHeader(req: Request): RamaResult<Request, String> {
     val proxyAddr = req.extensions.get<ProxyAddress>()
     val usesHttpProxy = proxyAddr?.protocol?.isHttp() ?: false
 
-    val requestCtx = RequestContext.tryFrom(req)
-        ?: return RamaResult.err("fetch request context")
+    val requestCtx =
+        RequestContext.tryFrom(req)
+            ?: return RamaResult.err("fetch request context")
 
     val isInsecureRequestOverHttpProxy = !requestCtx.protocol.isSecure() && usesHttpProxy
 
@@ -127,31 +134,34 @@ public fun sanitizeClientReqHeader(req: Request): RamaResult<Request, String> {
             }
         }
         Version.HTTP_2 -> {
-            val reqCopy = if (req.uri.host == null) {
-                val (parts, body) = req.intoParts()
-                val uriParts = parts.uri.intoParts()
-                uriParts.scheme = requestCtx.protocol.scheme
-                val authorityStr = if (requestCtx.authorityHasDefaultPort()) {
-                    requestCtx.authority.host
+            val reqCopy =
+                if (req.uri.host == null) {
+                    val (parts, body) = req.intoParts()
+                    val uriParts = parts.uri.intoParts()
+                    uriParts.scheme = requestCtx.protocol.scheme
+                    val authorityStr =
+                        if (requestCtx.authorityHasDefaultPort()) {
+                            requestCtx.authority.host
+                        } else {
+                            requestCtx.authority.toString()
+                        }
+                    uriParts.authority = authorityStr
+                    parts.uri = Uri.fromParts(uriParts)
+                    Request.fromParts(parts, body)
                 } else {
-                    requestCtx.authority.toString()
+                    Request(req.method, req.uri, req.version, req.headers.clone(), req.extensions.clone(), req.body)
                 }
-                uriParts.authority = authorityStr
-                parts.uri = Uri.fromParts(uriParts)
-                Request.fromParts(parts, body)
-            } else {
-                Request(req.method, req.uri, req.version, req.headers.clone(), req.extensions.clone(), req.body)
-            }
 
-            val illegalH2Headers = listOf(
-                "connection",
-                "transfer-encoding",
-                "proxy-connection",
-                "upgrade",
-                "sec-websocket-key",
-                "keep-alive",
-                "host",
-            )
+            val illegalH2Headers =
+                listOf(
+                    "connection",
+                    "transfer-encoding",
+                    "proxy-connection",
+                    "upgrade",
+                    "sec-websocket-key",
+                    "keep-alive",
+                    "host",
+                )
             for (header in illegalH2Headers) {
                 reqCopy.headersMut().remove(header)
             }

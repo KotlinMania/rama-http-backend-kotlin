@@ -17,7 +17,6 @@ internal class UpgradeService<O : Any, E : Any>(
     public val handlers: List<UpgradeHandler<O>>,
     public val inner: Service<Request, O, E>,
 ) : Service<Request, O, E> {
-
     /**
      * Get mutable reference to inner service.
      */

@@ -13,7 +13,6 @@ public class HttpProxyConnectorLayer(
     private var customVersion: Version? = null,
     private var customHeaders: HeaderMap? = null,
 ) : Layer<Any, HttpProxyConnector> {
-
     public val version: Version? get() = customVersion
     public val headers: HeaderMap? get() = customHeaders
 

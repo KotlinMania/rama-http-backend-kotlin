@@ -106,11 +106,12 @@ public class InnerHttpProxyConnector internal constructor(
      * Connect to the proxy server.
      */
     public suspend fun handshake(stream: Stream): RamaResult<Pair<HeaderMap, Upgraded>, HttpProxyError> {
-        val response = when (req.version) {
-            Version.HTTP_10, Version.HTTP_11 -> handshakeH1(req, stream)
-            Version.HTTP_2 -> handshakeH2(req, stream)
-            else -> return RamaResult.err(HttpProxyError.Other("invalid http version: ${req.version}"))
-        }
+        val response =
+            when (req.version) {
+                Version.HTTP_10, Version.HTTP_11 -> handshakeH1(req, stream)
+                Version.HTTP_2 -> handshakeH2(req, stream)
+                else -> return RamaResult.err(HttpProxyError.Other("invalid http version: ${req.version}"))
+            }
 
         return when (response.status) {
             StatusCode.OK -> {
@@ -159,14 +160,17 @@ public class InnerHttpProxyConnector internal constructor(
             headers.insert("host", authority.toString())
             headers.insert("user-agent", "rama")
 
-            val req = Request(
-                method = Method.CONNECT,
-                uri = uri,
-                version = Version.HTTP_11,
-                headers = headers,
-                extensions = io.github.kotlinmania.ramahttpbackend.Extensions.new(),
-                body = Body.empty(),
-            )
+            val req =
+                Request(
+                    method = Method.CONNECT,
+                    uri = uri,
+                    version = Version.HTTP_11,
+                    headers = headers,
+                    extensions =
+                        io.github.kotlinmania.ramahttpbackend.Extensions
+                            .new(),
+                    body = Body.empty(),
+                )
             return RamaResult.ok(InnerHttpProxyConnector(req))
         }
     }

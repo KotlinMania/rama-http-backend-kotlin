@@ -24,7 +24,6 @@ public class HttpProxyConnector(
     private var customVersion: Version? = Version.HTTP_11,
     private var customHeaders: HeaderMap? = null,
 ) : Service<Request, EstablishedClientConnection<MaybeHttpProxiedConnection, Request>, Throwable> {
-
     public val version: Version? get() = customVersion
     public val headers: HeaderMap? get() = customHeaders
 
@@ -88,9 +87,10 @@ public class HttpProxyConnector(
             if (required) {
                 return RamaResult.err(IllegalStateException("http proxy required but none is defined"))
             }
-            val mockStream: Stream = object : Stream {
-                override val extensions: Extensions = input.extensions.copy()
-            }
+            val mockStream: Stream =
+                object : Stream {
+                    override val extensions: Extensions = input.extensions.copy()
+                }
             val conn: MaybeHttpProxiedConnection = MaybeHttpProxiedConnection.direct(mockStream)
             return RamaResult.ok(EstablishedClientConnection(conn, input))
         }
@@ -98,18 +98,20 @@ public class HttpProxyConnector(
         val authority = requestCtx?.authority ?: HostWithOptPort(proxyInfo.address.host, proxyInfo.address.port)
 
         if (requestCtx != null && !requestCtx.protocol.isSecure()) {
-            val mockStream: Stream = object : Stream {
-                override val extensions: Extensions = input.extensions.copy()
-            }
+            val mockStream: Stream =
+                object : Stream {
+                    override val extensions: Extensions = input.extensions.copy()
+                }
             val conn: MaybeHttpProxiedConnection = MaybeHttpProxiedConnection.proxied(mockStream)
             return RamaResult.ok(EstablishedClientConnection(conn, input))
         }
 
         val connectorResult = InnerHttpProxyConnector.new(authority)
-        val connector = when (connectorResult) {
-            is RamaResult.Ok -> connectorResult.value
-            is RamaResult.Err -> return RamaResult.err(IllegalStateException(connectorResult.error))
-        }
+        val connector =
+            when (connectorResult) {
+                is RamaResult.Ok -> connectorResult.value
+                is RamaResult.Err -> return RamaResult.err(IllegalStateException(connectorResult.error))
+            }
 
         customVersion?.let { connector.setVersion(it) }
 
@@ -128,9 +130,10 @@ public class HttpProxyConnector(
             }
         }
 
-        val mockStream: Stream = object : Stream {
-            override val extensions: Extensions = input.extensions.copy()
-        }
+        val mockStream: Stream =
+            object : Stream {
+                override val extensions: Extensions = input.extensions.copy()
+            }
 
         return when (val handshakeRes = connector.handshake(mockStream)) {
             is RamaResult.Ok -> {
@@ -171,6 +174,7 @@ public class HttpProxyConnectResponseHeaders(
     public val headers: HeaderMap,
 ) {
     public fun asRef(): HeaderMap = headers
+
     public fun deref(): HeaderMap = headers
 
     override fun toString(): String = headers.toString()
@@ -189,7 +193,6 @@ public class MaybeHttpProxiedConnection private constructor(
     private val proxiedConn: Stream? = null,
     private val upgradedConn: Upgraded? = null,
 ) : Stream {
-
     public val isDirect: Boolean get() = directConn != null
     public val isProxied: Boolean get() = proxiedConn != null
     public val isUpgradedProxy: Boolean get() = upgradedConn != null
@@ -201,12 +204,13 @@ public class MaybeHttpProxiedConnection private constructor(
 
     public fun extensionsMut(): Extensions = extensions
 
-    override fun toString(): String = when {
-        directConn != null -> "MaybeHttpProxiedConnection.Direct($directConn)"
-        proxiedConn != null -> "MaybeHttpProxiedConnection.Proxied($proxiedConn)"
-        upgradedConn != null -> "MaybeHttpProxiedConnection.UpgradedProxy($upgradedConn)"
-        else -> "MaybeHttpProxiedConnection"
-    }
+    override fun toString(): String =
+        when {
+            directConn != null -> "MaybeHttpProxiedConnection.Direct($directConn)"
+            proxiedConn != null -> "MaybeHttpProxiedConnection.Proxied($proxiedConn)"
+            upgradedConn != null -> "MaybeHttpProxiedConnection.UpgradedProxy($upgradedConn)"
+            else -> "MaybeHttpProxiedConnection"
+        }
 
     public companion object {
         public fun direct(conn: Stream): MaybeHttpProxiedConnection =
