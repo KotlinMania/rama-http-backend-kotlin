@@ -3,8 +3,6 @@ package io.github.kotlinmania.ramahttpbackend.server
 
 import io.github.kotlinmania.ramahttpbackend.Executor
 import io.github.kotlinmania.ramahttpbackend.RamaResult
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.Response
 import io.github.kotlinmania.ramahttpbackend.Service
 import io.github.kotlinmania.ramahttpbackend.ShutdownGuard
 import io.github.kotlinmania.ramahttpbackend.Stream
@@ -103,7 +101,6 @@ internal class HttpService<B : HttpCoreConnServer>(
     public val builder: B,
     public val service: Any,
 ) : Service<Stream, Unit, Throwable> {
-
     override suspend fun serve(input: Stream): RamaResult<Unit, Throwable> =
         builder.httpCoreServeConnection(input, service)
 

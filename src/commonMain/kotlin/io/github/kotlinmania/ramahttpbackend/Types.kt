@@ -6,34 +6,44 @@ import kotlin.reflect.KClass
  * Result type for Rama operations.
  */
 public sealed class RamaResult<out T, out E> {
-    public data class Ok<out T>(public val value: T) : RamaResult<T, Nothing>()
-    public data class Err<out E>(public val error: E) : RamaResult<Nothing, E>()
+    public data class Ok<out T>(
+        public val value: T,
+    ) : RamaResult<T, Nothing>()
+
+    public data class Err<out E>(
+        public val error: E,
+    ) : RamaResult<Nothing, E>()
 
     public val isOk: Boolean get() = this is Ok
     public val isErr: Boolean get() = this is Err
 
-    public fun unwrap(): T = when (this) {
-        is Ok -> value
-        is Err -> throw IllegalStateException("Called unwrap on Err: $error")
-    }
+    public fun unwrap(): T =
+        when (this) {
+            is Ok -> value
+            is Err -> throw IllegalStateException("Called unwrap on Err: $error")
+        }
 
-    public fun unwrapErr(): E = when (this) {
-        is Ok -> throw IllegalStateException("Called unwrapErr on Ok: $value")
-        is Err -> error
-    }
+    public fun unwrapErr(): E =
+        when (this) {
+            is Ok -> throw IllegalStateException("Called unwrapErr on Ok: $value")
+            is Err -> error
+        }
 
-    public inline fun <R> map(transform: (T) -> R): RamaResult<R, E> = when (this) {
-        is Ok -> Ok(transform(value))
-        is Err -> this
-    }
+    public inline fun <R> map(transform: (T) -> R): RamaResult<R, E> =
+        when (this) {
+            is Ok -> Ok(transform(value))
+            is Err -> this
+        }
 
-    public inline fun <F> mapErr(transform: (E) -> F): RamaResult<T, F> = when (this) {
-        is Ok -> this
-        is Err -> Err(transform(error))
-    }
+    public inline fun <F> mapErr(transform: (E) -> F): RamaResult<T, F> =
+        when (this) {
+            is Ok -> this
+            is Err -> Err(transform(error))
+        }
 
     public companion object {
         public fun <T> ok(value: T): RamaResult<T, Nothing> = Ok(value)
+
         public fun <E> err(error: E): RamaResult<Nothing, E> = Err(error)
     }
 }
@@ -115,45 +125,60 @@ public class Extensions {
 /**
  * Network protocol definition.
  */
-public sealed class NetProtocol(public val scheme: String) : Comparable<NetProtocol> {
+public sealed class NetProtocol(
+    public val scheme: String,
+) : Comparable<NetProtocol> {
     public open fun isHttp(): Boolean = false
+
     public open fun isWs(): Boolean = false
+
     public open fun isSocks5(): Boolean = false
+
     public open fun isSecure(): Boolean = false
+
     public open fun defaultPort(): Int? = null
 
     override fun toString(): String = scheme
+
     override fun compareTo(other: NetProtocol): Int = scheme.compareTo(other.scheme, ignoreCase = true)
 
     public data object Http : NetProtocol("http") {
         override fun isHttp(): Boolean = true
+
         override fun defaultPort(): Int = 80
     }
 
     public data object Https : NetProtocol("https") {
         override fun isHttp(): Boolean = true
+
         override fun isSecure(): Boolean = true
+
         override fun defaultPort(): Int = 443
     }
 
     public data object Ws : NetProtocol("ws") {
         override fun isWs(): Boolean = true
+
         override fun defaultPort(): Int = 80
     }
 
     public data object Wss : NetProtocol("wss") {
         override fun isWs(): Boolean = true
+
         override fun isSecure(): Boolean = true
+
         override fun defaultPort(): Int = 443
     }
 
     public data object Socks5 : NetProtocol("socks5") {
         override fun isSocks5(): Boolean = true
+
         override fun defaultPort(): Int = 1080
     }
 
     public data object Socks5h : NetProtocol("socks5h") {
         override fun isSocks5(): Boolean = true
+
         override fun defaultPort(): Int = 1080
     }
 
@@ -161,15 +186,16 @@ public sealed class NetProtocol(public val scheme: String) : Comparable<NetProto
         public const val HTTP_DEFAULT_PORT: Int = 80
         public const val HTTPS_DEFAULT_PORT: Int = 443
 
-        public fun parse(scheme: String): NetProtocol? = when (scheme.lowercase()) {
-            "http" -> Http
-            "https" -> Https
-            "ws" -> Ws
-            "wss" -> Wss
-            "socks5" -> Socks5
-            "socks5h" -> Socks5h
-            else -> null
-        }
+        public fun parse(scheme: String): NetProtocol? =
+            when (scheme.lowercase()) {
+                "http" -> Http
+                "https" -> Https
+                "ws" -> Ws
+                "wss" -> Wss
+                "socks5" -> Socks5
+                "socks5h" -> Socks5h
+                else -> null
+            }
     }
 }
 
@@ -177,14 +203,19 @@ public sealed class NetProtocol(public val scheme: String) : Comparable<NetProto
  * Proxy authentication credentials.
  */
 public sealed class ProxyCredential {
-    public data class Basic(val username: String, val password: String? = null) : ProxyCredential() {
+    public data class Basic(
+        val username: String,
+        val password: String? = null,
+    ) : ProxyCredential() {
         public fun headerValue(): String {
             val raw = if (password != null) "$username:$password" else username
             return "Basic " + raw.encodeToByteArray().joinToString("") { it.toUByte().toString(16).padStart(2, '0') }
         }
     }
 
-    public data class Bearer(val token: String) : ProxyCredential() {
+    public data class Bearer(
+        val token: String,
+    ) : ProxyCredential() {
         public fun headerValue(): String = "Bearer $token"
     }
 }
@@ -192,11 +223,15 @@ public sealed class ProxyCredential {
 /**
  * Host name with mandatory port number.
  */
-public data class HostWithPort(val host: String, val port: Int) {
+public data class HostWithPort(
+    val host: String,
+    val port: Int,
+) {
     override fun toString(): String = "$host:$port"
 
     public companion object {
         public fun exampleDomainHttp(): HostWithPort = HostWithPort("example.com", 80)
+
         public fun exampleDomainHttps(): HostWithPort = HostWithPort("example.com", 443)
     }
 }
@@ -204,7 +239,10 @@ public data class HostWithPort(val host: String, val port: Int) {
 /**
  * Host name with optional port number.
  */
-public data class HostWithOptPort(val host: String, val port: Int? = null) {
+public data class HostWithOptPort(
+    val host: String,
+    val port: Int? = null,
+) {
     override fun toString(): String = if (port != null) "$host:$port" else host
 
     public companion object {
@@ -236,7 +274,11 @@ public data class ProxyAddress(
         }
         if (credential != null && credential is ProxyCredential.Basic) {
             if (credential.password != null) {
-                sb.append(credential.username).append(':').append(credential.password).append('@')
+                sb
+                    .append(credential.username)
+                    .append(':')
+                    .append(credential.password)
+                    .append('@')
             } else {
                 sb.append(credential.username).append('@')
             }
@@ -262,11 +304,12 @@ public data class ProxyAddress(
                 val userPass = input.substring(0, atIdx)
                 input = input.substring(atIdx + 1)
                 val credColonIdx = userPass.indexOf(':')
-                credential = if (credColonIdx != -1) {
-                    ProxyCredential.Basic(userPass.substring(0, credColonIdx), userPass.substring(credColonIdx + 1))
-                } else {
-                    ProxyCredential.Basic(userPass, null)
-                }
+                credential =
+                    if (credColonIdx != -1) {
+                        ProxyCredential.Basic(userPass.substring(0, credColonIdx), userPass.substring(credColonIdx + 1))
+                    } else {
+                        ProxyCredential.Basic(userPass, null)
+                    }
             }
 
             val colonIdx = input.indexOf(':')
@@ -311,16 +354,17 @@ public data class RequestContext(
             val scheme = req.uri.scheme
             val proto = if (scheme != null) NetProtocol.parse(scheme) ?: NetProtocol.Http else NetProtocol.Http
 
-            val authority = if (hostStr != null) {
-                HostWithOptPort(hostStr, port)
-            } else {
-                val hostHeader = req.headers.get("host")
-                if (hostHeader != null) {
-                    HostWithOptPort.parse(hostHeader)
+            val authority =
+                if (hostStr != null) {
+                    HostWithOptPort(hostStr, port)
                 } else {
-                    return null
+                    val hostHeader = req.headers.get("host")
+                    if (hostHeader != null) {
+                        HostWithOptPort.parse(hostHeader)
+                    } else {
+                        return null
+                    }
                 }
-            }
 
             return RequestContext(authority, proto)
         }
@@ -330,7 +374,9 @@ public data class RequestContext(
 /**
  * HTTP Method representation.
  */
-public enum class Method(public val text: String) {
+public enum class Method(
+    public val text: String,
+) {
     GET("GET"),
     POST("POST"),
     PUT("PUT"),
@@ -339,9 +385,11 @@ public enum class Method(public val text: String) {
     OPTIONS("OPTIONS"),
     CONNECT("CONNECT"),
     PATCH("PATCH"),
-    TRACE("TRACE");
+    TRACE("TRACE"),
+    ;
 
     public fun asStr(): String = text
+
     override fun toString(): String = text
 
     public companion object {
@@ -353,12 +401,15 @@ public enum class Method(public val text: String) {
 /**
  * HTTP Version representation.
  */
-public enum class Version(public val text: String) {
+public enum class Version(
+    public val text: String,
+) {
     HTTP_09("HTTP/0.9"),
     HTTP_10("HTTP/1.0"),
     HTTP_11("HTTP/1.1"),
     HTTP_2("HTTP/2.0"),
-    HTTP_3("HTTP/3.0");
+    HTTP_3("HTTP/3.0"),
+    ;
 
     override fun toString(): String = text
 
@@ -371,7 +422,10 @@ public enum class Version(public val text: String) {
 /**
  * HTTP Status Code.
  */
-public data class StatusCode(public val code: Int, public val reason: String = "") {
+public data class StatusCode(
+    public val code: Int,
+    public val reason: String = "",
+) {
     override fun toString(): String = if (reason.isNotEmpty()) "$code $reason" else "$code"
 
     public companion object {
@@ -537,9 +591,13 @@ public class HeaderMap {
 /**
  * HTTP Body payload.
  */
-public class Body(private val bytes: ByteArray) {
+public class Body(
+    private val bytes: ByteArray,
+) {
     public val size: Int get() = bytes.size
+
     public fun toByteArray(): ByteArray = bytes.copyOf()
+
     public fun asString(): String = bytes.decodeToString()
 
     override fun equals(other: Any?): Boolean =
@@ -549,8 +607,11 @@ public class Body(private val bytes: ByteArray) {
 
     public companion object {
         public fun empty(): Body = Body(ByteArray(0))
+
         public fun from(s: String): Body = Body(s.encodeToByteArray())
+
         public fun from(bytes: ByteArray): Body = Body(bytes.copyOf())
+
         public fun new(bytes: ByteArray): Body = Body(bytes.copyOf())
     }
 }
@@ -578,6 +639,7 @@ public class Request(
     public var body: Body = Body.empty(),
 ) {
     public fun headersMut(): HeaderMap = headers
+
     public fun extensionsMut(): Extensions = extensions
 
     public fun intoParts(): Pair<RequestParts, Body> {
@@ -680,6 +742,7 @@ public class Response(
     public var body: Body = Body.empty(),
 ) {
     public fun headersMut(): HeaderMap = headers
+
     public fun extensionsMut(): Extensions = extensions
 
     public fun intoParts(): Pair<ResponseParts, Body> {
@@ -704,6 +767,7 @@ public class Response(
  */
 public interface Service<in Input, out Output : Any, out Error : Any> {
     public suspend fun serve(input: Input): RamaResult<Output, Error>
+
     public fun boxed(): BoxService<Input, Output, Error> = BoxService(this)
 }
 
@@ -711,6 +775,7 @@ public class BoxService<in Input, out Output : Any, out Error : Any>(
     private val inner: Service<Input, Output, Error>,
 ) : Service<Input, Output, Error> {
     override suspend fun serve(input: Input): RamaResult<Output, Error> = inner.serve(input)
+
     override fun boxed(): BoxService<Input, Output, Error> = this
 }
 
@@ -719,6 +784,7 @@ public class BoxService<in Input, out Output : Any, out Error : Any>(
  */
 public interface Layer<in S, out OutService> {
     public fun layer(inner: S): OutService
+
     public fun intoLayer(inner: S): OutService = layer(inner)
 }
 
@@ -744,6 +810,7 @@ public class Upgraded(
     private val ext: Extensions = Extensions(),
 ) : Stream {
     override val extensions: Extensions get() = ext
+
     public fun extensionsMut(): Extensions = ext
 }
 
@@ -763,6 +830,7 @@ public class Executor {
 
     public companion object {
         public val default: Executor = Executor()
+
         public fun new(): Executor = Executor()
     }
 }

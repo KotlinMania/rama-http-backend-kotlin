@@ -13,7 +13,6 @@ import io.github.kotlinmania.ramahttpbackend.Upgraded
 internal class UpgradeLayer<O : Any>(
     public val handlers: MutableList<UpgradeHandler<O>> = mutableListOf(),
 ) : Layer<Service<Request, O, Nothing>, UpgradeService<O, Nothing>> {
-
     /**
      * Add an extra upgrade handler to the layer.
      */

@@ -3,9 +3,6 @@ package io.github.kotlinmania.ramahttpbackend.server
 
 import io.github.kotlinmania.ramahttpbackend.Executor
 import io.github.kotlinmania.ramahttpbackend.RamaResult
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.Response
-import io.github.kotlinmania.ramahttpbackend.Service
 import io.github.kotlinmania.ramahttpbackend.Stream
 
 /**
@@ -31,7 +28,6 @@ public interface HttpCoreConnServer {
  * HTTP/1.1 server builder.
  */
 public class Http1Builder : HttpCoreConnServer {
-
     override suspend fun httpCoreServeConnection(
         stream: Stream,
         service: Any,
@@ -48,7 +44,6 @@ public class Http1Builder : HttpCoreConnServer {
 public class Http2Builder(
     public val executor: Executor = Executor.default,
 ) : HttpCoreConnServer {
-
     override suspend fun httpCoreServeConnection(
         stream: Stream,
         service: Any,
@@ -66,7 +61,6 @@ public class Http2Builder(
 public class AutoBuilder(
     public val executor: Executor = Executor.default,
 ) : HttpCoreConnServer {
-
     public val http1: Http1Builder = Http1Builder.new()
     public val http2: Http2Builder = Http2Builder.new(executor)
 

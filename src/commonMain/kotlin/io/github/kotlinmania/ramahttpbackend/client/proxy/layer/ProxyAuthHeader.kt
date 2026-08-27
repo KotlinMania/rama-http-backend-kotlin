@@ -12,9 +12,7 @@ import io.github.kotlinmania.ramahttpbackend.Service
 /**
  * Proxy authorization header layer for Rama HTTP clients.
  */
-internal class SetProxyAuthHttpHeaderLayer :
-    Layer<Service<Request, Response, Throwable>, SetProxyAuthHttpHeaderService> {
-
+internal class SetProxyAuthHttpHeaderLayer : Layer<Service<Request, Response, Throwable>, SetProxyAuthHttpHeaderService> {
     override fun layer(inner: Service<Request, Response, Throwable>): SetProxyAuthHttpHeaderService =
         SetProxyAuthHttpHeaderService(inner)
 
@@ -35,7 +33,6 @@ internal class SetProxyAuthHttpHeaderLayer :
 internal class SetProxyAuthHttpHeaderService(
     public val inner: Service<Request, Response, Throwable>,
 ) : Service<Request, Response, Throwable> {
-
     /**
      * Mutable reference to inner service.
      */

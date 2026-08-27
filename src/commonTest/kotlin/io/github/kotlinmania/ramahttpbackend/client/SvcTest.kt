@@ -13,27 +13,29 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class SvcTest {
-
     @Test
     fun shouldSanitizeHttp1ExceptConnect() {
-        val methods = listOf(
-            Method.DELETE,
-            Method.GET,
-            Method.HEAD,
-            Method.OPTIONS,
-            Method.PATCH,
-            Method.POST,
-            Method.PUT,
-            Method.TRACE,
-        )
+        val methods =
+            listOf(
+                Method.DELETE,
+                Method.GET,
+                Method.HEAD,
+                Method.OPTIONS,
+                Method.PATCH,
+                Method.POST,
+                Method.PUT,
+                Method.TRACE,
+            )
 
         for (method in methods) {
             val uri = Uri.fromString("https://example.com/test")
-            val req = Request.builder()
-                .uri(uri)
-                .method(method)
-                .body(Body.empty())
-                .unwrap()
+            val req =
+                Request
+                    .builder()
+                    .uri(uri)
+                    .method(method)
+                    .body(Body.empty())
+                    .unwrap()
 
             val sanitized = sanitizeClientReqHeader(req).unwrap()
             val (parts, _) = sanitized.intoParts()
@@ -47,11 +49,13 @@ class SvcTest {
     @Test
     fun shouldNotSanitizeHttp1Connect() {
         val uri = Uri.fromString("https://example.com/test")
-        val req = Request.builder()
-            .method(Method.CONNECT)
-            .uri(uri)
-            .body(Body.empty())
-            .unwrap()
+        val req =
+            Request
+                .builder()
+                .method(Method.CONNECT)
+                .uri(uri)
+                .body(Body.empty())
+                .unwrap()
 
         val sanitized = sanitizeClientReqHeader(req).unwrap()
         val (parts, _) = sanitized.intoParts()
@@ -64,10 +68,12 @@ class SvcTest {
     @Test
     fun shouldNotSanitizeInsecureHttp1RequestOverHttpProxy() {
         val uri = Uri.fromString("http://example.com/test")
-        val req = Request.builder()
-            .uri(uri)
-            .body(Body.empty())
-            .unwrap()
+        val req =
+            Request
+                .builder()
+                .uri(uri)
+                .body(Body.empty())
+                .unwrap()
 
         req.extensionsMut().insert(
             ProxyAddress(
@@ -88,10 +94,12 @@ class SvcTest {
     @Test
     fun shouldSanitizeSecureHttp1RequestOverHttpProxy() {
         val uri = Uri.fromString("https://example.com/test")
-        val req = Request.builder()
-            .uri(uri)
-            .body(Body.empty())
-            .unwrap()
+        val req =
+            Request
+                .builder()
+                .uri(uri)
+                .body(Body.empty())
+                .unwrap()
 
         req.extensionsMut().insert(
             ProxyAddress(
@@ -112,10 +120,12 @@ class SvcTest {
     @Test
     fun shouldSanitizeInsecureHttp1RequestOverSocksProxy() {
         val uri = Uri.fromString("http://example.com/test")
-        val req = Request.builder()
-            .uri(uri)
-            .body(Body.empty())
-            .unwrap()
+        val req =
+            Request
+                .builder()
+                .uri(uri)
+                .body(Body.empty())
+                .unwrap()
 
         req.extensionsMut().insert(
             ProxyAddress(

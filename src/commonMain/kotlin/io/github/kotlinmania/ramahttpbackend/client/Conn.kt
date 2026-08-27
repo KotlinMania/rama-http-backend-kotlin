@@ -6,7 +6,6 @@ import io.github.kotlinmania.ramahttpbackend.EstablishedClientConnection
 import io.github.kotlinmania.ramahttpbackend.Layer
 import io.github.kotlinmania.ramahttpbackend.RamaResult
 import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.Response
 import io.github.kotlinmania.ramahttpbackend.Service
 import io.github.kotlinmania.ramahttpbackend.Version
 
@@ -16,7 +15,6 @@ import io.github.kotlinmania.ramahttpbackend.Version
 public class HttpConnector(
     public val inner: Any = Any(),
 ) : Service<Request, EstablishedClientConnection<HttpClientService<Body>, Request>, Throwable> {
-
     /**
      * Get mutable reference to inner service.
      */
@@ -25,10 +23,11 @@ public class HttpConnector(
     override suspend fun serve(
         input: Request,
     ): RamaResult<EstablishedClientConnection<HttpClientService<Body>, Request>, Throwable> {
-        val clientService = when (input.version) {
-            Version.HTTP_2 -> HttpClientService.http2<Body>()
-            else -> HttpClientService.http1<Body>()
-        }
+        val clientService =
+            when (input.version) {
+                Version.HTTP_2 -> HttpClientService.http2<Body>()
+                else -> HttpClientService.http1<Body>()
+            }
         return RamaResult.ok(EstablishedClientConnection(clientService, input))
     }
 
@@ -44,8 +43,8 @@ public class HttpConnector(
  * A [Layer] that produces an [HttpConnector].
  */
 public class HttpConnectorLayer : Layer<Any, HttpConnector> {
-
     override fun layer(inner: Any): HttpConnector = HttpConnector(inner)
+
     override fun intoLayer(inner: Any): HttpConnector = layer(inner)
 
     public companion object {

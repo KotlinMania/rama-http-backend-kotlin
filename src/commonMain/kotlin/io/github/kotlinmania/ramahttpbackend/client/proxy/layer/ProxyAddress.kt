@@ -15,7 +15,6 @@ internal class HttpProxyAddressLayer(
     public val address: ProxyAddress? = null,
     private var isPreserve: Boolean = false,
 ) : Layer<Service<Request, Response, Throwable>, HttpProxyAddressService> {
-
     public val preserve: Boolean get() = isPreserve
 
     /**
@@ -79,7 +78,6 @@ internal class HttpProxyAddressService(
     public val proxyInfo: ProxyAddress? = null,
     private var isPreserve: Boolean = false,
 ) : Service<Request, Response, Throwable> {
-
     public val preserve: Boolean get() = isPreserve
 
     /**
