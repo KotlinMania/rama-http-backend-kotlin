@@ -2,7 +2,7 @@
   "type": "port",
   "name": "rama-http-backend-kotlin",
   "source": {
-    "path": "tmp/rama-http-backend/src",
+    "path": "tmp",
     "lang": "rust"
   },
   "target": {
