@@ -1,4 +1,4 @@
-// port-lint: tests client/svc.rs
+// port-lint: tests rama-http-backend/src/client/svc.rs
 package io.github.kotlinmania.ramahttpbackend.client
 
 import io.github.kotlinmania.ramahttpbackend.Body

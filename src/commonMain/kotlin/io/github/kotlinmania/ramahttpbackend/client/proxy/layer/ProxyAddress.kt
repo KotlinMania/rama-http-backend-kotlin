@@ -1,4 +1,4 @@
-// port-lint: source client/proxy/layer/proxy_address.rs
+// port-lint: source rama-http-backend/src/client/proxy/layer/proxy_address.rs
 package io.github.kotlinmania.ramahttpbackend.client.proxy.layer
 
 import io.github.kotlinmania.ramahttpbackend.Layer
