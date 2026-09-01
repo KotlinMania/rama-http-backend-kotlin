@@ -15,5 +15,37 @@
     "todos": true,
     "lint": true
   },
-  "reexport_modules": []
+  "reexport_modules": [
+    "lib",
+    "lib.rs",
+    "rama-http-backend/src/lib.rs",
+    "server/mod",
+    "server.mod",
+    "server/mod.rs",
+    "rama-http-backend/src/server/mod.rs",
+    "server/layer/mod",
+    "server.layer.mod",
+    "server/layer/mod.rs",
+    "rama-http-backend/src/server/layer/mod.rs",
+    "server/layer/upgrade/mod",
+    "server.layer.upgrade.mod",
+    "server/layer/upgrade/mod.rs",
+    "rama-http-backend/src/server/layer/upgrade/mod.rs",
+    "client/mod",
+    "client.mod",
+    "client/mod.rs",
+    "rama-http-backend/src/client/mod.rs",
+    "client/proxy/mod",
+    "client.proxy.mod",
+    "client/proxy/mod.rs",
+    "rama-http-backend/src/client/proxy/mod.rs",
+    "client/proxy/layer/mod",
+    "client.proxy.layer.mod",
+    "client/proxy/layer/mod.rs",
+    "rama-http-backend/src/client/proxy/layer/mod.rs",
+    "client/proxy/layer/proxy_connector/mod",
+    "client.proxy.layer.proxy_connector.mod",
+    "client/proxy/layer/proxy_connector/mod.rs",
+    "rama-http-backend/src/client/proxy/layer/proxy_connector/mod.rs"
+  ]
 }

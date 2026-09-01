@@ -5,12 +5,12 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 20/20 (100.0%)
-- **Function parity:** 63/83 matched (target 140) — 75.9%
-- **Class/type parity:** 19/41 matched (target 44) — 46.3%
-- **Combined symbol parity:** 82/124 matched (target 184) — 66.1%
+- **Function parity:** 61/79 matched (target 137) — 77.2%
+- **Class/type parity:** 19/41 matched (target 42) — 46.3%
+- **Combined symbol parity:** 80/120 matched (target 179) — 66.7%
 - **Average inline-code cosine:** 0.47 (function body across 12 matched files)
 - **Average documentation cosine:** 0.69 (doc text across 12 matched files)
-- **Cheat-zeroed Files:** 8
+- **Cheat-zeroed Files:** 7
 - **Critical Issues:** 18 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
@@ -116,19 +116,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/5 matched (target 2)
 - **Missing types:** `Service`, `Output`, `Error`
 
-### 9. rama-http-backend.lib
-
-- **Target:** `ramahttpbackend.Lib [STUB]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 20410.0
-- **Functions:** 2/4 matched (target 3)
-- **Missing functions:** `server_svc_fn`, `create_test_request`
-- **Types:** 0/0 matched (target 2)
-- **Missing types:** _none_
-- **Tests:** 2/4 matched
-
-### 10. server.core_conn
+### 9. server.core_conn
 
 - **Target:** `server.CoreConn`
 - **Similarity:** 0.40
@@ -139,7 +127,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/2 matched (target 5)
 - **Missing types:** `Sealed`
 
-### 11. proxy_connector.layer
+### 10. proxy_connector.layer
 
 - **Target:** `proxyconnector.Layer`
 - **Similarity:** 0.40
@@ -150,7 +138,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/2 matched (target 1)
 - **Missing types:** `Service`
 
-### 12. server.mod
+### 11. server.mod
 
 - **Target:** `server.Mod [STUB]`
 - **Similarity:** 0.00
@@ -161,7 +149,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/1 matched
 - **Missing types:** `HttpServeResult`
 
-### 13. proxy_connector.connector
+### 12. proxy_connector.connector
 
 - **Target:** `proxyconnector.Connector`
 - **Similarity:** 0.57
@@ -172,7 +160,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched
 - **Missing types:** _none_
 
-### 14. proxy_connector.proxy_error
+### 13. proxy_connector.proxy_error
 
 - **Target:** `proxyconnector.ProxyError`
 - **Similarity:** 0.50
@@ -183,7 +171,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched (target 9)
 - **Missing types:** _none_
 
-### 15. client.mod
+### 14. client.mod
 
 - **Target:** `client.Mod [STUB]`
 - **Similarity:** 0.00
@@ -194,7 +182,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 
-### 16. layer.mod
+### 15. layer.mod
 
 - **Target:** `layer.Mod [STUB]`
 - **Similarity:** 0.00
@@ -205,7 +193,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 
-### 17. proxy.mod
+### 16. proxy.mod
 
 - **Target:** `proxy.Mod [STUB]`
 - **Similarity:** 0.00
@@ -216,7 +204,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 
-### 18. rama-http-backend.client.proxy.layer.mod
+### 17. rama-http-backend.client.proxy.layer.mod
 
 - **Target:** `commonMain.kotlin.io.github.kotlinmania.ramahttpbackend.client.proxy.layer.Mod [STUB]`
 - **Similarity:** 0.00
@@ -227,7 +215,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 
-### 19. upgrade.mod
+### 18. upgrade.mod
 
 - **Target:** `upgrade.Mod [STUB]`
 - **Similarity:** 0.00
@@ -238,7 +226,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 
-### 20. proxy_connector.mod
+### 19. proxy_connector.mod
 
 - **Target:** `proxyconnector.Mod [STUB]`
 - **Similarity:** 0.00
@@ -257,4 +245,17 @@ For each file to be considered "complete":
 - All tests ported
 - Documentation ported
 - port-lint header present
+
+## Reexport / Wiring Modules
+
+These files match `reexport_modules` patterns in `.ast_distance_config.json`. They are filtered out of
+normal priority and missing-file ladders because they are wiring
+modules, not direct logic ports. Consult them for call-site routing;
+do not treat them as the next implementation target by default.
+
+### Matched
+
+| Source | Target | Path |
+|--------|--------|------|
+| `rama-http-backend.lib` | `ramahttpbackend.Lib` | `rama-http-backend/src/lib` |
 
