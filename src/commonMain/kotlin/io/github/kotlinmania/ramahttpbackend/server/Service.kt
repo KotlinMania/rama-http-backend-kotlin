@@ -1,4 +1,4 @@
-// port-lint: source rama-http-backend/src/server/service.rs
+// port-lint: source server/service.rs
 package io.github.kotlinmania.ramahttpbackend.server
 
 import io.github.kotlinmania.ramahttpbackend.Executor
