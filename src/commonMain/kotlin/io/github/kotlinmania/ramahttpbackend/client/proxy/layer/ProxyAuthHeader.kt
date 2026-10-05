@@ -40,8 +40,9 @@ internal class SetProxyAuthHttpHeaderService(
 
     override suspend fun serve(input: Request): RamaResult<Response, Throwable> {
         val proxyAddress = input.extensions.get<ProxyAddress>()
-        if (proxyAddress != null && proxyAddress.credential != null) {
-            when (val cred = proxyAddress.credential) {
+        val credential = proxyAddress?.credential
+        if (proxyAddress != null && credential != null) {
+            when (val cred = credential) {
                 is ProxyCredential.Basic -> {
                     val isSecure = proxyAddress.protocol?.isSecure() ?: false
                     if (!isSecure) {
