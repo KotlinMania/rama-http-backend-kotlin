@@ -7,12 +7,14 @@ import io.github.kotlinmania.ramahttpbackend.client.proxy.layer.proxyconnector.H
 import io.github.kotlinmania.ramahttpbackend.server.HttpServer
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class LibTest {
     @Test
     fun testHttp11Pipelining() {
         val server = HttpServer.http1()
+        assertNotNull(server)
         val client = HttpClientService.http1<Body>()
 
         val uri = Uri.fromString("http://127.0.0.1:8080/foo")
@@ -33,6 +35,7 @@ class LibTest {
     @Test
     fun testHttp2Multiplex() {
         val server = HttpServer.h2()
+        assertNotNull(server)
         val client = HttpClientService.http2<Body>()
 
         val uri = Uri.fromString("https://127.0.0.1:8443/stream")
@@ -58,6 +61,7 @@ class LibTest {
         assertEquals(NetProtocol.Http, addr.protocol)
 
         val layer = HttpProxyAddressLayer.new(addr)
+        assertNotNull(layer)
         val connector = HttpProxyConnector.optional(Any())
         assertEquals(Version.HTTP_11, connector.version)
     }

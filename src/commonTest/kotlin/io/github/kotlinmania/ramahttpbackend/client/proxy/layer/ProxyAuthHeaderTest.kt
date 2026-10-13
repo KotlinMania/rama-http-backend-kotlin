@@ -46,12 +46,13 @@ class ProxyAuthHeaderTest {
 
     private fun serve(request: Request): String? {
         val response = Response()
-        val inner = object : Service<Request, Response, Throwable> {
-            override suspend fun serve(input: Request): RamaResult<Response, Throwable> {
-                assertSame(request, input)
-                return RamaResult.Ok(response)
+        val inner =
+            object : Service<Request, Response, Throwable> {
+                override suspend fun serve(input: Request): RamaResult<Response, Throwable> {
+                    assertSame(request, input)
+                    return RamaResult.Ok(response)
+                }
             }
-        }
         val result = runSync { SetProxyAuthHttpHeaderService(inner).serve(request) }
         assertSame(response, result.unwrap())
         return request.headers.get("proxy-authorization")

@@ -142,7 +142,10 @@ public class HttpProxyConnector(
                 val conn: MaybeHttpProxiedConnection = MaybeHttpProxiedConnection.upgradedProxy(upgraded)
                 RamaResult.ok(EstablishedClientConnection(conn, input))
             }
-            is RamaResult.Err -> RamaResult.err(IllegalStateException(handshakeRes.error.message))
+
+            is RamaResult.Err -> {
+                RamaResult.err(IllegalStateException(handshakeRes.error.message))
+            }
         }
     }
 

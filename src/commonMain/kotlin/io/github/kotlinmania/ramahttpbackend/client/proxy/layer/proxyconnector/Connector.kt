@@ -119,9 +119,18 @@ public class InnerHttpProxyConnector internal constructor(
                 val (parts, _) = response.intoParts()
                 RamaResult.ok(Pair(parts.headers, upgraded))
             }
-            StatusCode.PROXY_AUTHENTICATION_REQUIRED -> RamaResult.err(HttpProxyError.AuthRequired)
-            StatusCode.SERVICE_UNAVAILABLE -> RamaResult.err(HttpProxyError.Unavailable)
-            else -> RamaResult.err(HttpProxyError.Other("invalid http proxy conn handshake: status=${response.status}"))
+
+            StatusCode.PROXY_AUTHENTICATION_REQUIRED -> {
+                RamaResult.err(HttpProxyError.AuthRequired)
+            }
+
+            StatusCode.SERVICE_UNAVAILABLE -> {
+                RamaResult.err(HttpProxyError.Unavailable)
+            }
+
+            else -> {
+                RamaResult.err(HttpProxyError.Other("invalid http proxy conn handshake: status=${response.status}"))
+            }
         }
     }
 

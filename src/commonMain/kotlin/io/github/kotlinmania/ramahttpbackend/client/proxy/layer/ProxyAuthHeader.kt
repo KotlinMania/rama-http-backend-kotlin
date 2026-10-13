@@ -49,6 +49,7 @@ internal class SetProxyAuthHttpHeaderService(
                         input.headersMut().insert("proxy-authorization", cred.headerValue())
                     }
                 }
+
                 is ProxyCredential.Bearer -> {
                     input.headersMut().insert("proxy-authorization", cred.headerValue())
                 }
