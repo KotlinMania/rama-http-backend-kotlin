@@ -50,7 +50,10 @@ public sealed class HttpProxyError {
             is Transport -> {
                 error.source ?: error
             }
-            else -> null
+
+            else -> {
+                null
+            }
         }
 
     public companion object {

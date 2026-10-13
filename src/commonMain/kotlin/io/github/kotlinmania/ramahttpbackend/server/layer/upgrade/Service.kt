@@ -35,7 +35,10 @@ internal class UpgradeService<O : Any, E : Any>(
                     val (response, _) = respResult.value
                     RamaResult.ok(response)
                 }
-                is RamaResult.Err -> RamaResult.ok(respResult.error)
+
+                is RamaResult.Err -> {
+                    RamaResult.ok(respResult.error)
+                }
             }
         }
         return inner.serve(input)

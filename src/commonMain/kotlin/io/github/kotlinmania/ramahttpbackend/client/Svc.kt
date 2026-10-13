@@ -44,6 +44,7 @@ public class HttpClientService<B>(
                     return RamaResult.err(IllegalStateException("Http1 connector cannot send request with version ${input.version}"))
                 }
             }
+
             is SendRequest.Http2 -> {
                 if (input.version != Version.HTTP_2) {
                     return RamaResult.err(IllegalStateException("Http2 connector cannot send request with version ${input.version}"))
@@ -133,6 +134,7 @@ public fun sanitizeClientReqHeader(req: Request): RamaResult<Request, String> {
                 RamaResult.ok(req)
             }
         }
+
         Version.HTTP_2 -> {
             val reqCopy =
                 if (req.uri.host == null) {
@@ -168,6 +170,9 @@ public fun sanitizeClientReqHeader(req: Request): RamaResult<Request, String> {
 
             RamaResult.ok(reqCopy)
         }
-        Version.HTTP_3 -> RamaResult.ok(req)
+
+        Version.HTTP_3 -> {
+            RamaResult.ok(req)
+        }
     }
 }
