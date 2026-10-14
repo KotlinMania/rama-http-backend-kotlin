@@ -1,18 +1,19 @@
 // port-lint: source client/proxy/layer/proxy_connector/connector.rs
 package io.github.kotlinmania.ramahttpbackend.client.proxy.layer.proxyconnector
 
-import io.github.kotlinmania.ramahttpbackend.Body
-import io.github.kotlinmania.ramahttpbackend.HeaderMap
-import io.github.kotlinmania.ramahttpbackend.HostWithOptPort
-import io.github.kotlinmania.ramahttpbackend.Method
-import io.github.kotlinmania.ramahttpbackend.RamaResult
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.Response
-import io.github.kotlinmania.ramahttpbackend.StatusCode
-import io.github.kotlinmania.ramahttpbackend.Stream
-import io.github.kotlinmania.ramahttpbackend.Upgraded
-import io.github.kotlinmania.ramahttpbackend.Uri
-import io.github.kotlinmania.ramahttpbackend.Version
+import io.github.kotlinmania.http.StatusCode
+import io.github.kotlinmania.ramacore.Extensions
+import io.github.kotlinmania.ramacore.ExtensionsMut
+import io.github.kotlinmania.ramacore.RamaResult
+import io.github.kotlinmania.ramahttp.io.Upgraded
+import io.github.kotlinmania.ramahttp.types.Body
+import io.github.kotlinmania.ramahttp.types.HeaderMap
+import io.github.kotlinmania.ramahttp.types.Method
+import io.github.kotlinmania.ramahttp.types.Request
+import io.github.kotlinmania.ramahttp.types.Response
+import io.github.kotlinmania.ramahttp.types.Uri
+import io.github.kotlinmania.ramahttp.types.Version
+import io.github.kotlinmania.ramanet.address.HostWithOptPort
 
 /**
  * Inner connector for HTTP proxies.
@@ -46,7 +47,7 @@ public class InnerHttpProxyConnector internal constructor(
      * Add a header to the request.
      */
     public fun header(name: String, value: String): InnerHttpProxyConnector {
-        req.headersMut().insert(name, value)
+        req.headers.insert(name, value)
         return this
     }
 
@@ -66,7 +67,7 @@ public class InnerHttpProxyConnector internal constructor(
      * Add an extension to the request.
      */
     public fun extension(value: Any): InnerHttpProxyConnector {
-        req.extensionsMut().insert(value)
+        req.extensions.insert(value)
         return this
     }
 
@@ -86,7 +87,7 @@ public class InnerHttpProxyConnector internal constructor(
      * Add a typed header to the request.
      */
     public fun typedHeader(header: Any): InnerHttpProxyConnector {
-        req.headersMut().insert("host", header.toString())
+        req.headers.insert("host", header.toString())
         return this
     }
 
@@ -105,7 +106,7 @@ public class InnerHttpProxyConnector internal constructor(
     /**
      * Connect to the proxy server.
      */
-    public suspend fun handshake(stream: Stream): RamaResult<Pair<HeaderMap, Upgraded>, HttpProxyError> {
+    public suspend fun handshake(stream: ExtensionsMut): RamaResult<Pair<HeaderMap, Upgraded>, HttpProxyError> {
         val response =
             when (req.version) {
                 Version.HTTP_10, Version.HTTP_11 -> handshakeH1(req, stream)
@@ -115,7 +116,7 @@ public class InnerHttpProxyConnector internal constructor(
 
         return when (response.status) {
             StatusCode.OK -> {
-                val upgraded = Upgraded(stream, stream.extensions.copy())
+                val upgraded = Upgraded(stream, stream.extensions().copy())
                 val (parts, _) = response.intoParts()
                 RamaResult.ok(Pair(parts.headers, upgraded))
             }
@@ -134,26 +135,26 @@ public class InnerHttpProxyConnector internal constructor(
         }
     }
 
-    internal suspend fun handshakeH1(req: Request, stream: Stream): Response {
+    internal suspend fun handshakeH1(req: Request, stream: ExtensionsMut): Response {
         val respHeaders = HeaderMap()
         respHeaders.insert("proxy-agent", "rama")
         return Response(
             status = StatusCode.OK,
             version = req.version,
             headers = respHeaders,
-            extensions = stream.extensions.copy(),
+            extensions = stream.extensions().copy(),
             body = Body.empty(),
         )
     }
 
-    internal suspend fun handshakeH2(req: Request, stream: Stream): Response {
+    internal suspend fun handshakeH2(req: Request, stream: ExtensionsMut): Response {
         val respHeaders = HeaderMap()
         respHeaders.insert("proxy-agent", "rama")
         return Response(
             status = StatusCode.OK,
             version = req.version,
             headers = respHeaders,
-            extensions = stream.extensions.copy(),
+            extensions = stream.extensions().copy(),
             body = Body.empty(),
         )
     }
@@ -175,9 +176,7 @@ public class InnerHttpProxyConnector internal constructor(
                     uri = uri,
                     version = Version.HTTP_11,
                     headers = headers,
-                    extensions =
-                        io.github.kotlinmania.ramahttpbackend.Extensions
-                            .new(),
+                    extensions = Extensions.new(),
                     body = Body.empty(),
                 )
             return RamaResult.ok(InnerHttpProxyConnector(req))

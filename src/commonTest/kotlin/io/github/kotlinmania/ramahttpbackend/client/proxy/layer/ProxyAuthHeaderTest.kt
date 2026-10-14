@@ -1,14 +1,17 @@
 package io.github.kotlinmania.ramahttpbackend.client.proxy.layer
 
-import io.github.kotlinmania.ramahttpbackend.HostWithPort
-import io.github.kotlinmania.ramahttpbackend.NetProtocol
-import io.github.kotlinmania.ramahttpbackend.ProxyAddress
-import io.github.kotlinmania.ramahttpbackend.ProxyCredential
-import io.github.kotlinmania.ramahttpbackend.RamaResult
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.Response
-import io.github.kotlinmania.ramahttpbackend.Service
+import io.github.kotlinmania.ramacore.RamaResult
+import io.github.kotlinmania.ramacore.service.Service
+import io.github.kotlinmania.ramahttp.types.Request
+import io.github.kotlinmania.ramahttp.types.Response
+import io.github.kotlinmania.ramahttpbackend.headerValue
 import io.github.kotlinmania.ramahttpbackend.runSync
+import io.github.kotlinmania.ramanet.NetProtocol
+import io.github.kotlinmania.ramanet.address.HostWithPort
+import io.github.kotlinmania.ramanet.address.ProxyAddress
+import io.github.kotlinmania.ramanet.user.Basic
+import io.github.kotlinmania.ramanet.user.Bearer
+import io.github.kotlinmania.ramanet.user.ProxyCredential
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
@@ -26,7 +29,7 @@ class ProxyAuthHeaderTest {
 
     @Test
     fun basicCredentialsAreAddedOnlyForAnInsecureProxy() {
-        val credential = ProxyCredential.Basic("user", "password")
+        val credential = ProxyCredential.BasicAuth(Basic("user", "password"))
         for (protocol in listOf(NetProtocol.Http, NetProtocol.Https)) {
             val request = Request()
             request.extensions.insert(ProxyAddress(HostWithPort.exampleDomainHttp(), protocol, credential))
@@ -36,7 +39,7 @@ class ProxyAuthHeaderTest {
 
     @Test
     fun bearerCredentialsAreAddedForBothProxyProtocols() {
-        val credential = ProxyCredential.Bearer("token")
+        val credential = ProxyCredential.BearerAuth(Bearer("token"))
         for (protocol in listOf(NetProtocol.Http, NetProtocol.Https)) {
             val request = Request()
             request.extensions.insert(ProxyAddress(HostWithPort.exampleDomainHttp(), protocol, credential))
@@ -50,11 +53,11 @@ class ProxyAuthHeaderTest {
             object : Service<Request, Response, Throwable> {
                 override suspend fun serve(input: Request): RamaResult<Response, Throwable> {
                     assertSame(request, input)
-                    return RamaResult.Ok(response)
+                    return RamaResult.ok(response)
                 }
             }
         val result = runSync { SetProxyAuthHttpHeaderService(inner).serve(request) }
-        assertSame(response, result.unwrap())
-        return request.headers.get("proxy-authorization")
+        assertSame(response, result.value!!)
+        return request.headers.get("proxy-authorization")?.toStr()
     }
 }

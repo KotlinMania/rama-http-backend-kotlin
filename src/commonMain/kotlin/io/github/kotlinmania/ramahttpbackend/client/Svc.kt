@@ -1,19 +1,24 @@
 // port-lint: source client/svc.rs
 package io.github.kotlinmania.ramahttpbackend.client
 
-import io.github.kotlinmania.ramahttpbackend.Body
-import io.github.kotlinmania.ramahttpbackend.Extensions
-import io.github.kotlinmania.ramahttpbackend.HeaderMap
-import io.github.kotlinmania.ramahttpbackend.Method
-import io.github.kotlinmania.ramahttpbackend.ProxyAddress
-import io.github.kotlinmania.ramahttpbackend.RamaResult
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.RequestContext
-import io.github.kotlinmania.ramahttpbackend.Response
-import io.github.kotlinmania.ramahttpbackend.Service
-import io.github.kotlinmania.ramahttpbackend.StatusCode
-import io.github.kotlinmania.ramahttpbackend.Uri
-import io.github.kotlinmania.ramahttpbackend.Version
+import io.github.kotlinmania.http.StatusCode
+import io.github.kotlinmania.ramacore.Extensions
+import io.github.kotlinmania.ramacore.ExtensionsMut
+import io.github.kotlinmania.ramacore.RamaResult
+import io.github.kotlinmania.ramacore.service.Service
+import io.github.kotlinmania.ramahttp.types.Authority
+import io.github.kotlinmania.ramahttp.types.Body
+import io.github.kotlinmania.ramahttp.types.HeaderMap
+import io.github.kotlinmania.ramahttp.types.Method
+import io.github.kotlinmania.ramahttp.types.PathAndQuery
+import io.github.kotlinmania.ramahttp.types.Request
+import io.github.kotlinmania.ramahttp.types.Response
+import io.github.kotlinmania.ramahttp.types.Scheme
+import io.github.kotlinmania.ramahttp.types.Uri
+import io.github.kotlinmania.ramahttp.types.Version
+import io.github.kotlinmania.ramahttpbackend.hasDefaultPort
+import io.github.kotlinmania.ramahttpbackend.tryExtractRequestContext
+import io.github.kotlinmania.ramanet.address.ProxyAddress
 
 /**
  * Internal HTTP sender representation.
@@ -33,9 +38,16 @@ public sealed class SendRequest<Body> {
  */
 public class HttpClientService<B>(
     public val sender: SendRequest<B>,
-    public val extensions: Extensions = Extensions(),
-) : Service<Request, Response, Throwable> {
-    public fun extensionsMut(): Extensions = extensions
+    private val extensionsStore: Extensions = Extensions(),
+) : Service<Request, Response, Throwable>,
+    ExtensionsMut {
+    override fun extensions(): Extensions = extensionsStore
+
+    override fun extensionsMut(): Extensions = extensionsStore
+
+    internal fun fmt(): String = "HttpClientService(sender=$sender)"
+
+    override fun toString(): String = fmt()
 
     override suspend fun serve(input: Request): RamaResult<Response, Throwable> {
         when (sender) {
@@ -53,11 +65,10 @@ public class HttpClientService<B>(
         }
 
         val sanitizedRes = sanitizeClientReqHeader(input)
-        val sanitized =
-            when (sanitizedRes) {
-                is RamaResult.Ok -> sanitizedRes.value
-                is RamaResult.Err -> return RamaResult.err(IllegalStateException(sanitizedRes.error))
-            }
+        if (sanitizedRes.isFailure()) {
+            return RamaResult.err(IllegalStateException(sanitizedRes.error!!))
+        }
+        val sanitized = sanitizedRes.value!!
 
         val respHeaders = HeaderMap()
         respHeaders.insert("content-type", "application/octet-stream")
@@ -66,7 +77,7 @@ public class HttpClientService<B>(
                 status = StatusCode.OK,
                 version = sanitized.version,
                 headers = respHeaders,
-                extensions = extensions.copy(),
+                extensions = extensionsStore.copy(),
                 body = Body.empty(),
             )
 
@@ -94,7 +105,7 @@ public fun sanitizeClientReqHeader(req: Request): RamaResult<Request, String> {
     val usesHttpProxy = proxyAddr?.protocol?.isHttp() ?: false
 
     val requestCtx =
-        RequestContext.tryFrom(req)
+        tryExtractRequestContext(req)
             ?: return RamaResult.err("fetch request context")
 
     val isInsecureRequestOverHttpProxy = !requestCtx.protocol.isSecure() && usesHttpProxy
@@ -107,27 +118,36 @@ public fun sanitizeClientReqHeader(req: Request): RamaResult<Request, String> {
                 uriParts.scheme = null
                 uriParts.authority = null
 
-                val pq = uriParts.pathAndQuery
+                val pq = uriParts.pathAndQuery?.asStr
                 if (pq.isNullOrEmpty()) {
-                    uriParts.pathAndQuery = "/"
+                    uriParts.pathAndQuery = PathAndQuery("/")
                 }
 
                 if (!parts.headers.containsKey("host")) {
-                    if (requestCtx.authorityHasDefaultPort()) {
-                        parts.headers.insert("host", requestCtx.authority.host)
+                    if (requestCtx.hasDefaultPort()) {
+                        parts.headers.insert("host", requestCtx.authority.host.toString())
                     } else {
                         parts.headers.insert("host", requestCtx.authority.toString())
                     }
                 }
 
                 parts.uri = Uri.fromParts(uriParts)
-                RamaResult.ok(Request.fromParts(parts, body))
+                RamaResult.ok(
+                    Request(
+                        method = parts.method,
+                        uri = parts.uri,
+                        version = parts.version,
+                        headers = parts.headers,
+                        extensions = parts.extensions,
+                        body = body,
+                    ),
+                )
             } else if (!req.headers.containsKey("host")) {
-                val reqCopy = Request(req.method, req.uri, req.version, req.headers.clone(), req.extensions.clone(), req.body)
-                if (requestCtx.authorityHasDefaultPort()) {
-                    reqCopy.headersMut().insert("host", requestCtx.authority.host)
+                val reqCopy = Request(req.method, req.uri, req.version, req.headers.clone(), req.extensions.copy(), req.body)
+                if (requestCtx.hasDefaultPort()) {
+                    reqCopy.headers.insert("host", requestCtx.authority.host.toString())
                 } else {
-                    reqCopy.headersMut().insert("host", requestCtx.authority.toString())
+                    reqCopy.headers.insert("host", requestCtx.authority.toString())
                 }
                 RamaResult.ok(reqCopy)
             } else {
@@ -140,18 +160,25 @@ public fun sanitizeClientReqHeader(req: Request): RamaResult<Request, String> {
                 if (req.uri.host == null) {
                     val (parts, body) = req.intoParts()
                     val uriParts = parts.uri.intoParts()
-                    uriParts.scheme = requestCtx.protocol.scheme
+                    uriParts.scheme = Scheme(requestCtx.protocol.scheme)
                     val authorityStr =
-                        if (requestCtx.authorityHasDefaultPort()) {
-                            requestCtx.authority.host
+                        if (requestCtx.hasDefaultPort()) {
+                            requestCtx.authority.host.toString()
                         } else {
                             requestCtx.authority.toString()
                         }
-                    uriParts.authority = authorityStr
+                    uriParts.authority = Authority(authorityStr)
                     parts.uri = Uri.fromParts(uriParts)
-                    Request.fromParts(parts, body)
+                    Request(
+                        method = parts.method,
+                        uri = parts.uri,
+                        version = parts.version,
+                        headers = parts.headers,
+                        extensions = parts.extensions,
+                        body = body,
+                    )
                 } else {
-                    Request(req.method, req.uri, req.version, req.headers.clone(), req.extensions.clone(), req.body)
+                    Request(req.method, req.uri, req.version, req.headers.clone(), req.extensions.copy(), req.body)
                 }
 
             val illegalH2Headers =
@@ -165,7 +192,7 @@ public fun sanitizeClientReqHeader(req: Request): RamaResult<Request, String> {
                     "host",
                 )
             for (header in illegalH2Headers) {
-                reqCopy.headersMut().remove(header)
+                reqCopy.headers.remove(header)
             }
 
             RamaResult.ok(reqCopy)

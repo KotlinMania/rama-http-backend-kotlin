@@ -1,9 +1,9 @@
 // port-lint: source server/core_conn.rs
 package io.github.kotlinmania.ramahttpbackend.server
 
-import io.github.kotlinmania.ramahttpbackend.Executor
-import io.github.kotlinmania.ramahttpbackend.RamaResult
-import io.github.kotlinmania.ramahttpbackend.Stream
+import io.github.kotlinmania.ramacore.ExtensionsMut
+import io.github.kotlinmania.ramacore.RamaResult
+import io.github.kotlinmania.ramacore.rt.Executor
 
 /**
  * Result type of HTTP server serve operations.
@@ -19,7 +19,7 @@ public interface HttpCoreConnServer {
      * Serve a connection using this HTTP server builder.
      */
     public suspend fun httpCoreServeConnection(
-        stream: Stream,
+        stream: ExtensionsMut,
         service: Any,
     ): HttpServeResult
 }
@@ -29,7 +29,7 @@ public interface HttpCoreConnServer {
  */
 public class Http1Builder : HttpCoreConnServer {
     override suspend fun httpCoreServeConnection(
-        stream: Stream,
+        stream: ExtensionsMut,
         service: Any,
     ): HttpServeResult = RamaResult.ok(Unit)
 
@@ -42,15 +42,15 @@ public class Http1Builder : HttpCoreConnServer {
  * HTTP/2 server builder.
  */
 public class Http2Builder(
-    public val executor: Executor = Executor.default,
+    public val executor: Executor = Executor.new(),
 ) : HttpCoreConnServer {
     override suspend fun httpCoreServeConnection(
-        stream: Stream,
+        stream: ExtensionsMut,
         service: Any,
     ): HttpServeResult = RamaResult.ok(Unit)
 
     public companion object {
-        public fun new(exec: Executor = Executor.default): Http2Builder =
+        public fun new(exec: Executor = Executor.new()): Http2Builder =
             Http2Builder(exec)
     }
 }
@@ -59,18 +59,18 @@ public class Http2Builder(
  * Auto HTTP/1.1 + HTTP/2 server builder.
  */
 public class AutoBuilder(
-    public val executor: Executor = Executor.default,
+    public val executor: Executor = Executor.new(),
 ) : HttpCoreConnServer {
     public val http1: Http1Builder = Http1Builder.new()
     public val http2: Http2Builder = Http2Builder.new(executor)
 
     override suspend fun httpCoreServeConnection(
-        stream: Stream,
+        stream: ExtensionsMut,
         service: Any,
     ): HttpServeResult = RamaResult.ok(Unit)
 
     public companion object {
-        public fun new(exec: Executor = Executor.default): AutoBuilder =
+        public fun new(exec: Executor = Executor.new()): AutoBuilder =
             AutoBuilder(exec)
     }
 }

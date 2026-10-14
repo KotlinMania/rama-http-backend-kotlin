@@ -1,13 +1,15 @@
 // port-lint: tests client/svc.rs
 package io.github.kotlinmania.ramahttpbackend.client
 
-import io.github.kotlinmania.ramahttpbackend.Body
-import io.github.kotlinmania.ramahttpbackend.HostWithPort
-import io.github.kotlinmania.ramahttpbackend.Method
-import io.github.kotlinmania.ramahttpbackend.NetProtocol
-import io.github.kotlinmania.ramahttpbackend.ProxyAddress
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.Uri
+import io.github.kotlinmania.ramahttp.types.Authority
+import io.github.kotlinmania.ramahttp.types.Body
+import io.github.kotlinmania.ramahttp.types.Method
+import io.github.kotlinmania.ramahttp.types.Request
+import io.github.kotlinmania.ramahttp.types.Scheme
+import io.github.kotlinmania.ramahttp.types.Uri
+import io.github.kotlinmania.ramanet.NetProtocol
+import io.github.kotlinmania.ramanet.address.HostWithPort
+import io.github.kotlinmania.ramanet.address.ProxyAddress
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -35,9 +37,8 @@ class SvcTest {
                     .uri(uri)
                     .method(method)
                     .body(Body.empty())
-                    .unwrap()
 
-            val sanitized = sanitizeClientReqHeader(req).unwrap()
+            val sanitized = sanitizeClientReqHeader(req).value!!
             val (parts, _) = sanitized.intoParts()
             val uriParts = parts.uri.intoParts()
 
@@ -55,14 +56,13 @@ class SvcTest {
                 .method(Method.CONNECT)
                 .uri(uri)
                 .body(Body.empty())
-                .unwrap()
 
-        val sanitized = sanitizeClientReqHeader(req).unwrap()
+        val sanitized = sanitizeClientReqHeader(req).value!!
         val (parts, _) = sanitized.intoParts()
         val uriParts = parts.uri.intoParts()
 
-        assertEquals("https", uriParts.scheme)
-        assertEquals("example.com", uriParts.authority)
+        assertEquals(Scheme("https"), uriParts.scheme)
+        assertEquals(Authority("example.com"), uriParts.authority)
     }
 
     @Test
@@ -73,9 +73,8 @@ class SvcTest {
                 .builder()
                 .uri(uri)
                 .body(Body.empty())
-                .unwrap()
 
-        req.extensionsMut().insert(
+        req.extensions.insert(
             ProxyAddress(
                 address = HostWithPort.exampleDomainHttp(),
                 credential = null,
@@ -83,12 +82,12 @@ class SvcTest {
             ),
         )
 
-        val sanitized = sanitizeClientReqHeader(req).unwrap()
+        val sanitized = sanitizeClientReqHeader(req).value!!
         val (parts, _) = sanitized.intoParts()
         val uriParts = parts.uri.intoParts()
 
-        assertEquals("http", uriParts.scheme)
-        assertEquals("example.com", uriParts.authority)
+        assertEquals(Scheme("http"), uriParts.scheme)
+        assertEquals(Authority("example.com"), uriParts.authority)
     }
 
     @Test
@@ -99,9 +98,8 @@ class SvcTest {
                 .builder()
                 .uri(uri)
                 .body(Body.empty())
-                .unwrap()
 
-        req.extensionsMut().insert(
+        req.extensions.insert(
             ProxyAddress(
                 address = HostWithPort.exampleDomainHttp(),
                 credential = null,
@@ -109,7 +107,7 @@ class SvcTest {
             ),
         )
 
-        val sanitized = sanitizeClientReqHeader(req).unwrap()
+        val sanitized = sanitizeClientReqHeader(req).value!!
         val (parts, _) = sanitized.intoParts()
         val uriParts = parts.uri.intoParts()
 
@@ -125,9 +123,8 @@ class SvcTest {
                 .builder()
                 .uri(uri)
                 .body(Body.empty())
-                .unwrap()
 
-        req.extensionsMut().insert(
+        req.extensions.insert(
             ProxyAddress(
                 address = HostWithPort.exampleDomainHttp(),
                 credential = null,
@@ -135,7 +132,7 @@ class SvcTest {
             ),
         )
 
-        val sanitized = sanitizeClientReqHeader(req).unwrap()
+        val sanitized = sanitizeClientReqHeader(req).value!!
         val (parts, _) = sanitized.intoParts()
         val uriParts = parts.uri.intoParts()
 
