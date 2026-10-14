@@ -28,7 +28,7 @@ public class HttpConnector(
                 Version.HTTP_2 -> HttpClientService.http2<Body>()
                 else -> HttpClientService.http1<Body>()
             }
-        return RamaResult.ok(EstablishedClientConnection(clientService, input))
+        return RamaResult.ok(EstablishedClientConnection(input = input, conn = clientService))
     }
 
     public companion object {

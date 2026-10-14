@@ -35,8 +35,8 @@ class LibTest {
                 .body(Body.empty())
 
         val resp = runSync { client.serve(req) }
-        assertTrue(resp.isOk)
-        assertEquals(StatusCode.OK, resp.unwrap().status)
+        assertTrue(resp.isSuccess())
+        assertEquals(StatusCode.OK, resp.value!!.status)
     }
 
     @Test
@@ -55,8 +55,8 @@ class LibTest {
                 .body(Body.empty())
 
         val resp = runSync { client.serve(req) }
-        assertTrue(resp.isOk)
-        assertEquals(StatusCode.OK, resp.unwrap().status)
+        assertTrue(resp.isSuccess())
+        assertEquals(StatusCode.OK, resp.value!!.status)
     }
 
     @Test

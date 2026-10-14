@@ -47,7 +47,7 @@ public class HttpServer<B : HttpCoreConnServer>(
     public fun http1Mut(): Http1Builder =
         when (val b = builder) {
             is Http1Builder -> b
-            is AutoBuilder -> b.http1()
+            is AutoBuilder -> b.http1
             else -> Http1Builder.new()
         }
 
@@ -57,7 +57,7 @@ public class HttpServer<B : HttpCoreConnServer>(
     public fun h2Mut(): Http2Builder =
         when (val b = builder) {
             is Http2Builder -> b
-            is AutoBuilder -> b.http2()
+            is AutoBuilder -> b.http2
             else -> Http2Builder.new()
         }
 

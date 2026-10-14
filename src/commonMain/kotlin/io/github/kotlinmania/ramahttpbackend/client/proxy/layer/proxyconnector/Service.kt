@@ -96,7 +96,7 @@ public class HttpProxyConnector(
                     override fun extensionsMut(): Extensions = ext
                 }
             val conn: MaybeHttpProxiedConnection = MaybeHttpProxiedConnection.direct(mockStream)
-            return RamaResult.ok(EstablishedClientConnection(conn, input))
+            return RamaResult.ok(EstablishedClientConnection(input = input, conn = conn))
         }
 
         val authority = requestCtx?.authority ?: HostWithOptPort(proxyInfo.address.host, proxyInfo.address.port)
@@ -111,15 +111,14 @@ public class HttpProxyConnector(
                     override fun extensionsMut(): Extensions = ext
                 }
             val conn: MaybeHttpProxiedConnection = MaybeHttpProxiedConnection.proxied(mockStream)
-            return RamaResult.ok(EstablishedClientConnection(conn, input))
+            return RamaResult.ok(EstablishedClientConnection(input = input, conn = conn))
         }
 
         val connectorResult = InnerHttpProxyConnector.new(authority)
-        val connector =
-            when (connectorResult) {
-                is RamaResult.Ok -> connectorResult.value
-                is RamaResult.Err -> return RamaResult.err(IllegalStateException(connectorResult.error))
-            }
+        if (connectorResult.isFailure()) {
+            return RamaResult.err(IllegalStateException(connectorResult.error!!))
+        }
+        val connector = connectorResult.value!!
 
         customVersion?.let { connector.setVersion(it) }
 
@@ -145,17 +144,14 @@ public class HttpProxyConnector(
                 override fun extensionsMut(): Extensions = ext
             }
 
-        return when (val handshakeRes = connector.handshake(mockStream)) {
-            is RamaResult.Ok -> {
-                val (respHeaders, upgraded) = handshakeRes.value
-                upgraded.extensionsMut().insert(HttpProxyConnectResponseHeaders.new(respHeaders))
-                val conn: MaybeHttpProxiedConnection = MaybeHttpProxiedConnection.upgradedProxy(upgraded)
-                RamaResult.ok(EstablishedClientConnection(conn, input))
-            }
-
-            is RamaResult.Err -> {
-                RamaResult.err(IllegalStateException(handshakeRes.error.message))
-            }
+        val handshakeRes = connector.handshake(mockStream)
+        return if (handshakeRes.isSuccess()) {
+            val (respHeaders, upgraded) = handshakeRes.value!!
+            upgraded.extensionsMut().insert(HttpProxyConnectResponseHeaders.new(respHeaders))
+            val conn: MaybeHttpProxiedConnection = MaybeHttpProxiedConnection.upgradedProxy(upgraded)
+            RamaResult.ok(EstablishedClientConnection(input = input, conn = conn))
+        } else {
+            RamaResult.err(IllegalStateException(handshakeRes.error!!.message))
         }
     }
 

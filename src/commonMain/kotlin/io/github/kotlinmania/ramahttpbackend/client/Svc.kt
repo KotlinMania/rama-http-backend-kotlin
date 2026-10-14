@@ -65,11 +65,10 @@ public class HttpClientService<B>(
         }
 
         val sanitizedRes = sanitizeClientReqHeader(input)
-        val sanitized =
-            when (sanitizedRes) {
-                is RamaResult.Ok -> sanitizedRes.value
-                is RamaResult.Err -> return RamaResult.err(IllegalStateException(sanitizedRes.error))
-            }
+        if (sanitizedRes.isFailure()) {
+            return RamaResult.err(IllegalStateException(sanitizedRes.error!!))
+        }
+        val sanitized = sanitizedRes.value!!
 
         val respHeaders = HeaderMap()
         respHeaders.insert("content-type", "application/octet-stream")

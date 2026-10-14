@@ -30,15 +30,12 @@ internal class UpgradeService<O : Any, E : Any>(
             }
             input.extensions.extend(ext)
 
-            return when (val respResult = handler.responder.serve(input)) {
-                is RamaResult.Ok -> {
-                    val (response, _) = respResult.value
-                    RamaResult.ok(response)
-                }
-
-                is RamaResult.Err -> {
-                    RamaResult.ok(respResult.error)
-                }
+            val respResult = handler.responder.serve(input)
+            return if (respResult.isSuccess()) {
+                val (response, _) = respResult.value!!
+                RamaResult.ok(response)
+            } else {
+                RamaResult.ok(respResult.error!!)
             }
         }
         return inner.serve(input)

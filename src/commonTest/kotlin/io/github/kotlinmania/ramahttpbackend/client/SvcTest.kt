@@ -38,7 +38,7 @@ class SvcTest {
                     .method(method)
                     .body(Body.empty())
 
-            val sanitized = sanitizeClientReqHeader(req).unwrap()
+            val sanitized = sanitizeClientReqHeader(req).value!!
             val (parts, _) = sanitized.intoParts()
             val uriParts = parts.uri.intoParts()
 
@@ -57,7 +57,7 @@ class SvcTest {
                 .uri(uri)
                 .body(Body.empty())
 
-        val sanitized = sanitizeClientReqHeader(req).unwrap()
+        val sanitized = sanitizeClientReqHeader(req).value!!
         val (parts, _) = sanitized.intoParts()
         val uriParts = parts.uri.intoParts()
 
@@ -82,7 +82,7 @@ class SvcTest {
             ),
         )
 
-        val sanitized = sanitizeClientReqHeader(req).unwrap()
+        val sanitized = sanitizeClientReqHeader(req).value!!
         val (parts, _) = sanitized.intoParts()
         val uriParts = parts.uri.intoParts()
 
@@ -107,7 +107,7 @@ class SvcTest {
             ),
         )
 
-        val sanitized = sanitizeClientReqHeader(req).unwrap()
+        val sanitized = sanitizeClientReqHeader(req).value!!
         val (parts, _) = sanitized.intoParts()
         val uriParts = parts.uri.intoParts()
 
@@ -132,7 +132,7 @@ class SvcTest {
             ),
         )
 
-        val sanitized = sanitizeClientReqHeader(req).unwrap()
+        val sanitized = sanitizeClientReqHeader(req).value!!
         val (parts, _) = sanitized.intoParts()
         val uriParts = parts.uri.intoParts()
 
