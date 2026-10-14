@@ -42,6 +42,26 @@ public class HttpServer<B : HttpCoreConnServer>(
     }
 
     /**
+     * HTTP/1 configuration.
+     */
+    public fun http1Mut(): Http1Builder =
+        when (val b = builder) {
+            is Http1Builder -> b
+            is AutoBuilder -> b.http1()
+            else -> Http1Builder.new()
+        }
+
+    /**
+     * HTTP/2 configuration.
+     */
+    public fun h2Mut(): Http2Builder =
+        when (val b = builder) {
+            is Http2Builder -> b
+            is AutoBuilder -> b.http2()
+            else -> Http2Builder.new()
+        }
+
+    /**
      * Turn this [HttpServer] into a [Service] that can be used to serve IO byte streams as HTTP.
      */
     public fun service(service: Any): Service<ExtensionsMut, Unit, Throwable> =
@@ -95,7 +115,7 @@ public class HttpServer<B : HttpCoreConnServer>(
             if (g != null) {
                 socket.serveGraceful(g, httpService)
             } else {
-                socket.close()
+                socket.serve(httpService)
             }
             RamaResult.ok(Unit)
         } catch (e: Throwable) {
@@ -137,6 +157,12 @@ internal class HttpService<B : HttpCoreConnServer>(
 ) : Service<ExtensionsMut, Unit, Throwable> {
     override suspend fun serve(input: ExtensionsMut): RamaResult<Unit, Throwable> =
         builder.httpCoreServeConnection(input, service)
+
+    internal fun fmt(): String = "HttpService(builder=$builder, service=$service)"
+
+    override fun toString(): String = fmt()
+
+    public fun clone(): HttpService<B> = HttpService(builder, service)
 
     companion object {
         fun <B : HttpCoreConnServer> new(

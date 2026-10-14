@@ -31,6 +31,12 @@ internal class UpgradeLayer<O : Any>(
     override fun intoLayer(inner: Service<Request, O, Nothing>): UpgradeService<O, Nothing> =
         layer(inner)
 
+    internal fun fmt(): String = "UpgradeLayer(handlers=$handlers)"
+
+    override fun toString(): String = fmt()
+
+    public fun clone(): UpgradeLayer<O> = UpgradeLayer(handlers.toMutableList())
+
     public companion object {
         /**
          * Create a new upgrade layer.

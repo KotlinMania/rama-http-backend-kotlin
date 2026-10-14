@@ -4,4 +4,4 @@ package io.github.kotlinmania.ramahttpbackend.client
 /**
  * Rama HTTP client module.
  */
-public typealias HttpClientServiceAlias<B> = HttpClientService<B>
+internal typealias HttpClientServiceAlias<B> = HttpClientService<B>

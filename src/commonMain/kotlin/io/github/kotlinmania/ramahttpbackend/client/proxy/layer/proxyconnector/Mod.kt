@@ -6,4 +6,4 @@ package io.github.kotlinmania.ramahttpbackend.client.proxy.layer.proxyconnector
  *
  * As defined in RFC 2068.
  */
-public typealias HttpProxyConnectResponseHeadersAlias = HttpProxyConnectResponseHeaders
+internal typealias HttpProxyConnectResponseHeadersAlias = HttpProxyConnectResponseHeaders

@@ -3,6 +3,7 @@ package io.github.kotlinmania.ramahttpbackend.client
 
 import io.github.kotlinmania.http.StatusCode
 import io.github.kotlinmania.ramacore.Extensions
+import io.github.kotlinmania.ramacore.ExtensionsMut
 import io.github.kotlinmania.ramacore.RamaResult
 import io.github.kotlinmania.ramacore.service.Service
 import io.github.kotlinmania.ramahttp.types.Authority
@@ -37,9 +38,16 @@ public sealed class SendRequest<Body> {
  */
 public class HttpClientService<B>(
     public val sender: SendRequest<B>,
-    public val extensions: Extensions = Extensions(),
-) : Service<Request, Response, Throwable> {
-    public fun extensionsMut(): Extensions = extensions
+    private val extensionsStore: Extensions = Extensions(),
+) : Service<Request, Response, Throwable>,
+    ExtensionsMut {
+    override fun extensions(): Extensions = extensionsStore
+
+    override fun extensionsMut(): Extensions = extensionsStore
+
+    internal fun fmt(): String = "HttpClientService(sender=$sender)"
+
+    override fun toString(): String = fmt()
 
     override suspend fun serve(input: Request): RamaResult<Response, Throwable> {
         when (sender) {
@@ -70,7 +78,7 @@ public class HttpClientService<B>(
                 status = StatusCode.OK,
                 version = sanitized.version,
                 headers = respHeaders,
-                extensions = extensions.copy(),
+                extensions = extensionsStore.copy(),
                 body = Body.empty(),
             )
 

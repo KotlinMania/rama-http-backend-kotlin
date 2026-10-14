@@ -44,6 +44,12 @@ internal class UpgradeService<O : Any, E : Any>(
         return inner.serve(input)
     }
 
+    internal fun fmt(): String = "UpgradeService(handlers=$handlers, inner=$inner)"
+
+    override fun toString(): String = fmt()
+
+    public fun clone(): UpgradeService<O, E> = UpgradeService(handlers.toList(), inner)
+
     public companion object {
         public fun <O : Any, E : Any> new(
             handlers: List<UpgradeHandler<O>>,
