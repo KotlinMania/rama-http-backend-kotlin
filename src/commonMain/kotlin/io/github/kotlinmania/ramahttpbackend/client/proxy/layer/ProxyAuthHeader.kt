@@ -1,13 +1,15 @@
 // port-lint: source client/proxy/layer/proxy_auth_header.rs
 package io.github.kotlinmania.ramahttpbackend.client.proxy.layer
 
-import io.github.kotlinmania.ramahttpbackend.Layer
-import io.github.kotlinmania.ramahttpbackend.ProxyAddress
-import io.github.kotlinmania.ramahttpbackend.ProxyCredential
-import io.github.kotlinmania.ramahttpbackend.RamaResult
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.Response
-import io.github.kotlinmania.ramahttpbackend.Service
+import io.github.kotlinmania.ramacore.RamaResult
+import io.github.kotlinmania.ramacore.layer.Layer
+import io.github.kotlinmania.ramacore.service.Service
+import io.github.kotlinmania.ramahttp.types.Request
+import io.github.kotlinmania.ramahttp.types.Response
+import io.github.kotlinmania.ramahttpbackend.headerValue
+import io.github.kotlinmania.ramahttpbackend.tryExtractRequestContext
+import io.github.kotlinmania.ramanet.address.ProxyAddress
+import io.github.kotlinmania.ramanet.user.ProxyCredential
 
 /**
  * Proxy authorization header layer for Rama HTTP clients.
@@ -43,15 +45,17 @@ internal class SetProxyAuthHttpHeaderService(
         val credential = proxyAddress?.credential
         if (proxyAddress != null && credential != null) {
             when (val cred = credential) {
-                is ProxyCredential.Basic -> {
-                    val isSecure = proxyAddress.protocol?.isSecure() ?: false
+                is ProxyCredential.BasicAuth -> {
+                    val isSecure =
+                        (tryExtractRequestContext(input)?.protocol?.isSecure() == true) ||
+                            (proxyAddress.protocol?.isSecure() == true)
                     if (!isSecure) {
-                        input.headersMut().insert("proxy-authorization", cred.headerValue())
+                        input.headers.insert("proxy-authorization", cred.headerValue())
                     }
                 }
 
-                is ProxyCredential.Bearer -> {
-                    input.headersMut().insert("proxy-authorization", cred.headerValue())
+                is ProxyCredential.BearerAuth -> {
+                    input.headers.insert("proxy-authorization", cred.headerValue())
                 }
             }
         }

@@ -1,19 +1,19 @@
 // port-lint: source client/proxy/layer/proxy_connector/service.rs
 package io.github.kotlinmania.ramahttpbackend.client.proxy.layer.proxyconnector
 
-import io.github.kotlinmania.ramahttpbackend.EstablishedClientConnection
-import io.github.kotlinmania.ramahttpbackend.Extensions
-import io.github.kotlinmania.ramahttpbackend.HeaderMap
-import io.github.kotlinmania.ramahttpbackend.HostWithOptPort
-import io.github.kotlinmania.ramahttpbackend.ProxyAddress
-import io.github.kotlinmania.ramahttpbackend.ProxyCredential
-import io.github.kotlinmania.ramahttpbackend.RamaResult
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.RequestContext
-import io.github.kotlinmania.ramahttpbackend.Service
-import io.github.kotlinmania.ramahttpbackend.Stream
-import io.github.kotlinmania.ramahttpbackend.Upgraded
-import io.github.kotlinmania.ramahttpbackend.Version
+import io.github.kotlinmania.ramacore.Extensions
+import io.github.kotlinmania.ramacore.ExtensionsMut
+import io.github.kotlinmania.ramacore.RamaResult
+import io.github.kotlinmania.ramacore.service.Service
+import io.github.kotlinmania.ramahttp.io.Upgraded
+import io.github.kotlinmania.ramahttp.types.HeaderMap
+import io.github.kotlinmania.ramahttp.types.Request
+import io.github.kotlinmania.ramahttp.types.Version
+import io.github.kotlinmania.ramahttpbackend.headerValue
+import io.github.kotlinmania.ramahttpbackend.tryExtractRequestContext
+import io.github.kotlinmania.ramanet.address.HostWithOptPort
+import io.github.kotlinmania.ramanet.address.ProxyAddress
+import io.github.kotlinmania.ramanet.client.EstablishedClientConnection
 
 /**
  * A connector which can be used to establish a connection over an HTTP Proxy.
@@ -77,19 +77,23 @@ public class HttpProxyConnector(
         input: Request,
     ): RamaResult<EstablishedClientConnection<MaybeHttpProxiedConnection, Request>, Throwable> {
         val proxyInfo = input.extensions.get<ProxyAddress>()
-        if (proxyInfo?.protocol != null && !proxyInfo.protocol.isHttp()) {
+        if (proxyInfo?.protocol != null && !proxyInfo.protocol!!.isHttp()) {
             return RamaResult.err(IllegalArgumentException("http proxy connector can only serve http protocol"))
         }
 
-        val requestCtx = RequestContext.tryFrom(input)
+        val requestCtx = tryExtractRequestContext(input)
 
         if (proxyInfo == null) {
             if (required) {
                 return RamaResult.err(IllegalStateException("http proxy required but none is defined"))
             }
-            val mockStream: Stream =
-                object : Stream {
-                    override val extensions: Extensions = input.extensions.copy()
+            val mockStream: ExtensionsMut =
+                object : ExtensionsMut {
+                    private val ext: Extensions = input.extensions.copy()
+
+                    override fun extensions(): Extensions = ext
+
+                    override fun extensionsMut(): Extensions = ext
                 }
             val conn: MaybeHttpProxiedConnection = MaybeHttpProxiedConnection.direct(mockStream)
             return RamaResult.ok(EstablishedClientConnection(conn, input))
@@ -98,9 +102,13 @@ public class HttpProxyConnector(
         val authority = requestCtx?.authority ?: HostWithOptPort(proxyInfo.address.host, proxyInfo.address.port)
 
         if (requestCtx != null && !requestCtx.protocol.isSecure()) {
-            val mockStream: Stream =
-                object : Stream {
-                    override val extensions: Extensions = input.extensions.copy()
+            val mockStream: ExtensionsMut =
+                object : ExtensionsMut {
+                    private val ext: Extensions = input.extensions.copy()
+
+                    override fun extensions(): Extensions = ext
+
+                    override fun extensionsMut(): Extensions = ext
                 }
             val conn: MaybeHttpProxiedConnection = MaybeHttpProxiedConnection.proxied(mockStream)
             return RamaResult.ok(EstablishedClientConnection(conn, input))
@@ -116,29 +124,31 @@ public class HttpProxyConnector(
         customVersion?.let { connector.setVersion(it) }
 
         proxyInfo.credential?.let { cred ->
-            when (cred) {
-                is ProxyCredential.Basic -> connector.setHeader("proxy-authorization", cred.headerValue())
-                is ProxyCredential.Bearer -> connector.setHeader("proxy-authorization", cred.headerValue())
-            }
+            connector.setHeader("proxy-authorization", cred.headerValue())
         }
 
         customHeaders?.let { h ->
-            for ((k, v) in h.toMap()) {
-                if (!k.equals("proxy-authorization", ignoreCase = true) && !k.equals("host", ignoreCase = true)) {
-                    connector.setHeader(k, v)
+            for ((k, v) in h.entries()) {
+                val key = k.asStr()
+                if (!key.equals("proxy-authorization", ignoreCase = true) && !key.equals("host", ignoreCase = true)) {
+                    connector.setHeader(key, v.toStr())
                 }
             }
         }
 
-        val mockStream: Stream =
-            object : Stream {
-                override val extensions: Extensions = input.extensions.copy()
+        val mockStream: ExtensionsMut =
+            object : ExtensionsMut {
+                private val ext: Extensions = input.extensions.copy()
+
+                override fun extensions(): Extensions = ext
+
+                override fun extensionsMut(): Extensions = ext
             }
 
         return when (val handshakeRes = connector.handshake(mockStream)) {
             is RamaResult.Ok -> {
                 val (respHeaders, upgraded) = handshakeRes.value
-                upgraded.extensions.insert(HttpProxyConnectResponseHeaders.new(respHeaders))
+                upgraded.extensionsMut().insert(HttpProxyConnectResponseHeaders.new(respHeaders))
                 val conn: MaybeHttpProxiedConnection = MaybeHttpProxiedConnection.upgradedProxy(upgraded)
                 RamaResult.ok(EstablishedClientConnection(conn, input))
             }
@@ -192,20 +202,20 @@ public class HttpProxyConnectResponseHeaders(
  * A connection which will be proxied if a [ProxyAddress] was configured.
  */
 public class MaybeHttpProxiedConnection private constructor(
-    private val directConn: Stream? = null,
-    private val proxiedConn: Stream? = null,
+    private val directConn: ExtensionsMut? = null,
+    private val proxiedConn: ExtensionsMut? = null,
     private val upgradedConn: Upgraded? = null,
-) : Stream {
+) : ExtensionsMut {
     public val isDirect: Boolean get() = directConn != null
     public val isProxied: Boolean get() = proxiedConn != null
     public val isUpgradedProxy: Boolean get() = upgradedConn != null
 
     private val defaultExt: Extensions = Extensions.new()
 
-    override val extensions: Extensions
-        get() = directConn?.extensions ?: proxiedConn?.extensions ?: upgradedConn?.extensions ?: defaultExt
+    override fun extensions(): Extensions =
+        directConn?.extensions() ?: proxiedConn?.extensions() ?: upgradedConn?.extensions() ?: defaultExt
 
-    public fun extensionsMut(): Extensions = extensions
+    override fun extensionsMut(): Extensions = extensions()
 
     override fun toString(): String =
         when {
@@ -216,10 +226,10 @@ public class MaybeHttpProxiedConnection private constructor(
         }
 
     public companion object {
-        public fun direct(conn: Stream): MaybeHttpProxiedConnection =
+        public fun direct(conn: ExtensionsMut): MaybeHttpProxiedConnection =
             MaybeHttpProxiedConnection(directConn = conn)
 
-        public fun proxied(conn: Stream): MaybeHttpProxiedConnection =
+        public fun proxied(conn: ExtensionsMut): MaybeHttpProxiedConnection =
             MaybeHttpProxiedConnection(proxiedConn = conn)
 
         public fun upgradedProxy(conn: Upgraded): MaybeHttpProxiedConnection =

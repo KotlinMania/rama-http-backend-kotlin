@@ -1,9 +1,9 @@
 // port-lint: source client/proxy/layer/proxy_connector/layer.rs
 package io.github.kotlinmania.ramahttpbackend.client.proxy.layer.proxyconnector
 
-import io.github.kotlinmania.ramahttpbackend.HeaderMap
-import io.github.kotlinmania.ramahttpbackend.Layer
-import io.github.kotlinmania.ramahttpbackend.Version
+import io.github.kotlinmania.ramacore.layer.Layer
+import io.github.kotlinmania.ramahttp.types.HeaderMap
+import io.github.kotlinmania.ramahttp.types.Version
 
 /**
  * A [Layer] that wraps an inner connector with [HttpProxyConnector].
@@ -61,8 +61,8 @@ public class HttpProxyConnectorLayer(
         val service = HttpProxyConnector.new(inner, required)
         customVersion?.let { service.setVersion(it) }
         customHeaders?.let { h ->
-            for ((k, v) in h.toMap()) {
-                service.setCustomHeader(k, v)
+            for ((k, v) in h.entries()) {
+                service.setCustomHeader(k.asStr(), v.toStr())
             }
         }
         return service

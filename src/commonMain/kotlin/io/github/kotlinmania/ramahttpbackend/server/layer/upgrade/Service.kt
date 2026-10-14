@@ -1,13 +1,13 @@
 // port-lint: source server/layer/upgrade/service.rs
 package io.github.kotlinmania.ramahttpbackend.server.layer.upgrade
 
-import io.github.kotlinmania.ramahttpbackend.BoxService
-import io.github.kotlinmania.ramahttpbackend.Extensions
-import io.github.kotlinmania.ramahttpbackend.Matcher
-import io.github.kotlinmania.ramahttpbackend.RamaResult
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.Service
-import io.github.kotlinmania.ramahttpbackend.Upgraded
+import io.github.kotlinmania.ramacore.Extensions
+import io.github.kotlinmania.ramacore.RamaResult
+import io.github.kotlinmania.ramacore.matcher.Matcher
+import io.github.kotlinmania.ramacore.service.BoxService
+import io.github.kotlinmania.ramacore.service.Service
+import io.github.kotlinmania.ramahttp.io.Upgraded
+import io.github.kotlinmania.ramahttp.types.Request
 
 /**
  * Upgrade service can be used to handle the possibility of upgrading a request,
@@ -28,7 +28,7 @@ internal class UpgradeService<O : Any, E : Any>(
             if (!handler.matcher.matches(ext, input)) {
                 continue
             }
-            input.extensionsMut().extend(ext)
+            input.extensions.extend(ext)
 
             return when (val respResult = handler.responder.serve(input)) {
                 is RamaResult.Ok -> {

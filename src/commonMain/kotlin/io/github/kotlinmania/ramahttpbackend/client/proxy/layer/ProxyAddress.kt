@@ -1,12 +1,12 @@
 // port-lint: source client/proxy/layer/proxy_address.rs
 package io.github.kotlinmania.ramahttpbackend.client.proxy.layer
 
-import io.github.kotlinmania.ramahttpbackend.Layer
-import io.github.kotlinmania.ramahttpbackend.ProxyAddress
-import io.github.kotlinmania.ramahttpbackend.RamaResult
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.Response
-import io.github.kotlinmania.ramahttpbackend.Service
+import io.github.kotlinmania.ramacore.RamaResult
+import io.github.kotlinmania.ramacore.layer.Layer
+import io.github.kotlinmania.ramacore.service.Service
+import io.github.kotlinmania.ramahttp.types.Request
+import io.github.kotlinmania.ramahttp.types.Response
+import io.github.kotlinmania.ramanet.address.ProxyAddress
 
 /**
  * Proxy address layer for Rama HTTP clients.
@@ -108,7 +108,7 @@ internal class HttpProxyAddressService(
     override suspend fun serve(input: Request): RamaResult<Response, Throwable> {
         if (proxyInfo != null) {
             if (!isPreserve || !input.extensions.contains<ProxyAddress>()) {
-                input.extensionsMut().insert(proxyInfo)
+                input.extensions.insert(proxyInfo)
             }
         }
         return inner.serve(input)

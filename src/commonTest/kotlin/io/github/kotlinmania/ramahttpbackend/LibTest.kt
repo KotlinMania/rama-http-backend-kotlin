@@ -1,10 +1,18 @@
 // port-lint: tests lib.rs
 package io.github.kotlinmania.ramahttpbackend
 
+import io.github.kotlinmania.http.StatusCode
+import io.github.kotlinmania.ramahttp.types.Body
+import io.github.kotlinmania.ramahttp.types.Method
+import io.github.kotlinmania.ramahttp.types.Request
+import io.github.kotlinmania.ramahttp.types.Uri
+import io.github.kotlinmania.ramahttp.types.Version
 import io.github.kotlinmania.ramahttpbackend.client.HttpClientService
 import io.github.kotlinmania.ramahttpbackend.client.proxy.layer.HttpProxyAddressLayer
 import io.github.kotlinmania.ramahttpbackend.client.proxy.layer.proxyconnector.HttpProxyConnector
 import io.github.kotlinmania.ramahttpbackend.server.HttpServer
+import io.github.kotlinmania.ramanet.NetProtocol
+import io.github.kotlinmania.ramanet.address.ProxyAddress
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -25,7 +33,6 @@ class LibTest {
                 .uri(uri)
                 .version(Version.HTTP_11)
                 .body(Body.empty())
-                .unwrap()
 
         val resp = runSync { client.serve(req) }
         assertTrue(resp.isOk)
@@ -46,7 +53,6 @@ class LibTest {
                 .uri(uri)
                 .version(Version.HTTP_2)
                 .body(Body.empty())
-                .unwrap()
 
         val resp = runSync { client.serve(req) }
         assertTrue(resp.isOk)
@@ -56,8 +62,8 @@ class LibTest {
     @Test
     fun testProxyAddressParsingAndLayer() {
         val addr = ProxyAddress.parse("http://user:pass@127.0.0.1:8080")
-        assertEquals("127.0.0.1", addr.address.host)
-        assertEquals(8080, addr.address.port)
+        assertEquals("127.0.0.1", addr.address.host.toString())
+        assertEquals(8080.toUShort(), addr.address.port)
         assertEquals(NetProtocol.Http, addr.protocol)
 
         val layer = HttpProxyAddressLayer.new(addr)

@@ -146,6 +146,7 @@ configurations.configureEach {
     }
     if (name.contains("android", ignoreCase = true)) {
         exclude(group = "com.intellij", module = "annotations")
+        exclude(group = "org.jetbrains", module = "annotations")
     }
 }
 

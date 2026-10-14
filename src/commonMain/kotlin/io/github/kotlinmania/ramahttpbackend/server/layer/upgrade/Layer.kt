@@ -1,11 +1,11 @@
 // port-lint: source server/layer/upgrade/layer.rs
 package io.github.kotlinmania.ramahttpbackend.server.layer.upgrade
 
-import io.github.kotlinmania.ramahttpbackend.Layer
-import io.github.kotlinmania.ramahttpbackend.Matcher
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.Service
-import io.github.kotlinmania.ramahttpbackend.Upgraded
+import io.github.kotlinmania.ramacore.layer.Layer
+import io.github.kotlinmania.ramacore.matcher.Matcher
+import io.github.kotlinmania.ramacore.service.Service
+import io.github.kotlinmania.ramahttp.io.Upgraded
+import io.github.kotlinmania.ramahttp.types.Request
 
 /**
  * Middleware that can be used to upgrade a request.

@@ -1,13 +1,13 @@
 // port-lint: source client/conn.rs
 package io.github.kotlinmania.ramahttpbackend.client
 
-import io.github.kotlinmania.ramahttpbackend.Body
-import io.github.kotlinmania.ramahttpbackend.EstablishedClientConnection
-import io.github.kotlinmania.ramahttpbackend.Layer
-import io.github.kotlinmania.ramahttpbackend.RamaResult
-import io.github.kotlinmania.ramahttpbackend.Request
-import io.github.kotlinmania.ramahttpbackend.Service
-import io.github.kotlinmania.ramahttpbackend.Version
+import io.github.kotlinmania.ramacore.RamaResult
+import io.github.kotlinmania.ramacore.layer.Layer
+import io.github.kotlinmania.ramacore.service.Service
+import io.github.kotlinmania.ramahttp.types.Body
+import io.github.kotlinmania.ramahttp.types.Request
+import io.github.kotlinmania.ramahttp.types.Version
+import io.github.kotlinmania.ramanet.client.EstablishedClientConnection
 
 /**
  * A [Service] which establishes an HTTP connection.
