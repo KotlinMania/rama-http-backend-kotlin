@@ -19,7 +19,10 @@ internal fun tryExtractRequestContext(req: Request): RequestContext? {
         .fromParts(
             uriScheme = req.uri.scheme?.asStr,
             uriHost = req.uri.host,
-            uriPort = req.uri.authority?.portU16?.toUShort(),
+            uriPort =
+                req.uri.authority
+                    ?.portU16
+                    ?.toUShort(),
             hostHeader = req.headers.get(HeaderName.HOST)?.toStr(),
             httpVersion = req.version.asStr(),
             extensions = req.extensions,
