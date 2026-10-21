@@ -50,6 +50,13 @@ version = providers.gradleProperty("project.version").getOrElse("0.1.0-SNAPSHOT"
 val frameworkName = providers.gradleProperty("project.frameworkName").getOrElse("Unnamed")
 val projectNamespace = providers.gradleProperty("project.namespace").getOrElse("io.github.kotlinmania")
 val kotlinVersion = providers.gradleProperty("versions.kotlin").getOrElse("2.4.0")
+// kotlinmania:common-api-bundle:v1 begin
+val commonMainApiDependencyBundle = providers.gradleProperty("project.dependencies.commonMainApiBundle")
+    .orNull?.trim()?.takeIf { it.isNotEmpty() }?.let { bundleName ->
+        extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+            .findBundle(bundleName).orElseThrow { GradleException("Missing public API bundle '$bundleName'") }
+    }
+// kotlinmania:common-api-bundle:v1 end
 val commonMainBundleName = providers.gradleProperty("project.dependencies.commonMainBundle").get()
 val commonMainDependencyBundle =
     extensions
@@ -781,6 +788,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(commonMainDependencyBundle)
+            commonMainApiDependencyBundle?.let { api(it) }
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
