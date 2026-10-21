@@ -16,28 +16,26 @@ import io.github.kotlinmania.ramahttp.types.Response
 import io.github.kotlinmania.ramahttp.types.Scheme
 import io.github.kotlinmania.ramahttp.types.Uri
 import io.github.kotlinmania.ramahttp.types.Version
-import io.github.kotlinmania.ramahttpbackend.hasDefaultPort
-import io.github.kotlinmania.ramahttpbackend.tryExtractRequestContext
 import io.github.kotlinmania.ramanet.address.ProxyAddress
 
 /**
  * Internal HTTP sender representation.
  */
-public sealed class SendRequest<Body> {
-    public class Http1<Body>(
-        public val dummy: Any? = null,
+internal sealed class SendRequest<Body> {
+    class Http1<Body>(
+        val dummy: Any? = null,
     ) : SendRequest<Body>()
 
-    public class Http2<Body>(
-        public val dummy: Any? = null,
+    class Http2<Body>(
+        val dummy: Any? = null,
     ) : SendRequest<Body>()
 }
 
 /**
  * Internal HTTP sender used to send the actual requests.
  */
-public class HttpClientService<B>(
-    public val sender: SendRequest<B>,
+public class HttpClientService<B> internal constructor(
+    internal val sender: SendRequest<B>,
     private val extensionsStore: Extensions = Extensions(),
 ) : Service<Request, Response, Throwable>,
     ExtensionsMut {

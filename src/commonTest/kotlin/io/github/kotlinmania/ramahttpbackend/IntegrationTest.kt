@@ -1,4 +1,3 @@
-// port-lint: tests lib.rs
 package io.github.kotlinmania.ramahttpbackend
 
 import io.github.kotlinmania.http.StatusCode
@@ -18,7 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class LibTest {
+class IntegrationTest {
     @Test
     fun testHttp11Pipelining() {
         val server = HttpServer.http1()

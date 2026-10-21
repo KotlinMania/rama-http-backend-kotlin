@@ -50,11 +50,13 @@ rama-http-backend-commonMain = [
   "kotlinx-serialization-json",
   "kotlinx-datetime",
   "collections-immutable",
+  "tokio",
+]
+rama-http-backend-commonMainApi = [
   "http",
   "rama-core",
   "rama-http",
   "rama-net",
   "rama-tcp",
   "rama-unix",
-  "tokio",
 ]
