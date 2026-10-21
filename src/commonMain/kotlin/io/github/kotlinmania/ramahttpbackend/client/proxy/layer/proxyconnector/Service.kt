@@ -9,8 +9,8 @@ import io.github.kotlinmania.ramahttp.io.Upgraded
 import io.github.kotlinmania.ramahttp.types.HeaderMap
 import io.github.kotlinmania.ramahttp.types.Request
 import io.github.kotlinmania.ramahttp.types.Version
-import io.github.kotlinmania.ramahttpbackend.headerValue
-import io.github.kotlinmania.ramahttpbackend.tryExtractRequestContext
+import io.github.kotlinmania.ramahttpbackend.client.headerValue
+import io.github.kotlinmania.ramahttpbackend.client.tryExtractRequestContext
 import io.github.kotlinmania.ramanet.address.HostWithOptPort
 import io.github.kotlinmania.ramanet.address.ProxyAddress
 import io.github.kotlinmania.ramanet.client.EstablishedClientConnection

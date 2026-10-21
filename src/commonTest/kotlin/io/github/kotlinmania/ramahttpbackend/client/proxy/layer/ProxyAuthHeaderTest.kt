@@ -4,7 +4,7 @@ import io.github.kotlinmania.ramacore.RamaResult
 import io.github.kotlinmania.ramacore.service.Service
 import io.github.kotlinmania.ramahttp.types.Request
 import io.github.kotlinmania.ramahttp.types.Response
-import io.github.kotlinmania.ramahttpbackend.headerValue
+import io.github.kotlinmania.ramahttpbackend.client.headerValue
 import io.github.kotlinmania.ramahttpbackend.runSync
 import io.github.kotlinmania.ramanet.NetProtocol
 import io.github.kotlinmania.ramanet.address.HostWithPort

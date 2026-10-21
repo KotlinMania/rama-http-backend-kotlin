@@ -14,23 +14,15 @@ public typealias HttpServeResult = RamaResult<Unit, Throwable>
  * A utility interface to allow any of the HTTP core server builders to be used
  * in the same way to serve an HTTP connection.
  */
-public interface HttpCoreConnServer {
-    /**
-     * Serve a connection using this HTTP server builder.
-     */
-    public suspend fun httpCoreServeConnection(
-        stream: ExtensionsMut,
-        service: Any,
-    ): HttpServeResult
-}
+public sealed interface HttpCoreConnServer
 
 /**
  * HTTP/1.1 server builder.
  */
 public class Http1Builder : HttpCoreConnServer {
-    override suspend fun httpCoreServeConnection(
-        stream: ExtensionsMut,
-        service: Any,
+    internal suspend fun <IO : ExtensionsMut, S> httpCoreServeConnection(
+        stream: IO,
+        service: S,
     ): HttpServeResult = RamaResult.ok(Unit)
 
     public companion object {
@@ -44,9 +36,9 @@ public class Http1Builder : HttpCoreConnServer {
 public class Http2Builder(
     public val executor: Executor = Executor.new(),
 ) : HttpCoreConnServer {
-    override suspend fun httpCoreServeConnection(
-        stream: ExtensionsMut,
-        service: Any,
+    internal suspend fun <IO : ExtensionsMut, S> httpCoreServeConnection(
+        stream: IO,
+        service: S,
     ): HttpServeResult = RamaResult.ok(Unit)
 
     public companion object {
@@ -64,9 +56,9 @@ public class AutoBuilder(
     public val http1: Http1Builder = Http1Builder.new()
     public val http2: Http2Builder = Http2Builder.new(executor)
 
-    override suspend fun httpCoreServeConnection(
-        stream: ExtensionsMut,
-        service: Any,
+    internal suspend fun <IO : ExtensionsMut, S> httpCoreServeConnection(
+        stream: IO,
+        service: S,
     ): HttpServeResult = RamaResult.ok(Unit)
 
     public companion object {
@@ -74,6 +66,16 @@ public class AutoBuilder(
             AutoBuilder(exec)
     }
 }
+
+internal suspend fun <IO : ExtensionsMut, S> HttpCoreConnServer.httpCoreServeConnection(
+    stream: IO,
+    service: S,
+): HttpServeResult =
+    when (this) {
+        is Http1Builder -> httpCoreServeConnection(stream, service)
+        is Http2Builder -> httpCoreServeConnection(stream, service)
+        is AutoBuilder -> httpCoreServeConnection(stream, service)
+    }
 
 /**
  * Utility function to map boxed result.

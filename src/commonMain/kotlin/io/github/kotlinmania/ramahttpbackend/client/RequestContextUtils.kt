@@ -1,17 +1,9 @@
-// port-lint: source lib.rs
-package io.github.kotlinmania.ramahttpbackend
+package io.github.kotlinmania.ramahttpbackend.client
 
 import io.github.kotlinmania.ramahttp.types.HeaderName
 import io.github.kotlinmania.ramahttp.types.Request
 import io.github.kotlinmania.ramanet.http.RequestContext
 import io.github.kotlinmania.ramanet.user.ProxyCredential
-
-/**
- * Default Rama HTTP backend for Kotlin Multiplatform.
- */
-public object RamaHttpBackend {
-    public const val VERSION: String = "0.2.0"
-}
 
 internal fun tryExtractRequestContext(req: Request): RequestContext? {
     req.extensions.get<RequestContext>()?.let { return it }

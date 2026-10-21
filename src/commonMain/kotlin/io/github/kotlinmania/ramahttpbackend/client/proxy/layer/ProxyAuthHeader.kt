@@ -6,8 +6,8 @@ import io.github.kotlinmania.ramacore.layer.Layer
 import io.github.kotlinmania.ramacore.service.Service
 import io.github.kotlinmania.ramahttp.types.Request
 import io.github.kotlinmania.ramahttp.types.Response
-import io.github.kotlinmania.ramahttpbackend.headerValue
-import io.github.kotlinmania.ramahttpbackend.tryExtractRequestContext
+import io.github.kotlinmania.ramahttpbackend.client.headerValue
+import io.github.kotlinmania.ramahttpbackend.client.tryExtractRequestContext
 import io.github.kotlinmania.ramanet.address.ProxyAddress
 import io.github.kotlinmania.ramanet.user.ProxyCredential
 
